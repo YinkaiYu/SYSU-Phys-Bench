@@ -196,6 +196,21 @@ tr:last-child td {
   gap: 18px;
 }
 
+.chart-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scatter-download {
+  display: none;
+}
+
+#score-rank-card:fullscreen .scatter-download,
+#score-rank-card.is-expanded .scatter-download {
+  display: inline-block;
+}
+
 .fullscreen-button {
   flex: 0 0 auto;
   padding: 5px 10px;
@@ -205,6 +220,13 @@ tr:last-child td {
   background: transparent;
   cursor: pointer;
   font-size: 12px;
+  text-decoration: none;
+}
+
+.fullscreen-button[aria-disabled="true"] {
+  cursor: wait;
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .fullscreen-button:hover,

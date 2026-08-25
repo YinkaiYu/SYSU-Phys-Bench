@@ -638,6 +638,7 @@
     });
     svg.append(legend);
 
+    if (expanded) appendScatterCourseLabels(svg, data, x, y, margin, width, height);
     data.forEach((row) => {
       const circle = svgElement("circle", {
         cx: x(row.rankPercentile),
@@ -662,19 +663,71 @@
       circle.addEventListener("blur", () => circle.setAttribute("opacity", "0.78"));
       svg.append(circle);
     });
-    if (expanded) appendScatterCourseLabels(svg, data, x, y, margin, width, height);
     container.append(svg);
   }
 
   function setupScatterFullscreen() {
     const card = $("#score-rank-card");
     const button = $("#scatter-fullscreen");
+    const downloadButton = $("#scatter-download");
+    let preparedPngUrl = "";
+
+    const preparePng = async () => {
+      downloadButton.setAttribute("aria-disabled", "true");
+      downloadButton.textContent = "生成中";
+      const source = $("#score-rank-scatter svg");
+      const clone = source.cloneNode(true);
+      const viewBox = source.viewBox.baseVal;
+      const exportScale = Math.max(2, Math.min(3, 3600 / viewBox.width));
+      clone.setAttribute("width", viewBox.width);
+      clone.setAttribute("height", viewBox.height);
+      clone.setAttribute("xmlns", svgNS);
+
+      const style = svgElement("style", {}, `
+        svg { font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
+        .tick-label { fill: #737c82; font-family: Consolas, monospace; font-size: 11px; }
+        .grid-line { stroke: #e8ebe9; stroke-width: 1; }
+        .quadrant-line { stroke: #7d878c; stroke-dasharray: 4 4; stroke-width: 1; }
+        .quadrant-label { fill: #7b858a; font-size: 10px; letter-spacing: 0.02em; }
+        .scatter-label-line { stroke: rgba(75, 87, 93, 0.34); stroke-width: 0.8; }
+        .scatter-course-label { fill: #34434a; stroke: #ffffff; stroke-width: 3px; paint-order: stroke; font-size: 10px; }
+      `);
+      clone.prepend(style);
+
+      const svgBlob = new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const image = new Image();
+      image.src = svgUrl;
+      await image.decode();
+
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(viewBox.width * exportScale);
+      canvas.height = Math.round(viewBox.height * exportScale);
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(svgUrl);
+
+      preparedPngUrl = canvas.toDataURL("image/png");
+      downloadButton.href = preparedPngUrl;
+      downloadButton.removeAttribute("aria-disabled");
+      downloadButton.textContent = "下载 PNG";
+    };
 
     const update = () => {
       const expanded = isScatterExpanded();
       button.textContent = expanded ? "退出全屏" : "全屏";
       button.setAttribute("aria-label", expanded ? "退出课程成绩与教学班排名百分位全屏" : "全屏查看课程成绩与教学班排名百分位");
       renderScatter();
+      if (expanded) {
+        preparePng();
+      } else {
+        preparedPngUrl = "";
+        downloadButton.removeAttribute("href");
+        downloadButton.setAttribute("aria-disabled", "true");
+        downloadButton.textContent = "下载 PNG";
+      }
     };
 
     button.addEventListener("click", async () => {
