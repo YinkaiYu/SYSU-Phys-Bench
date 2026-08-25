@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f6f7f5" />
     <title>Yu Index 技术报告 · SYSU-Phys-Bench</title>
-    <link rel="stylesheet" href="styles.css?v=20260826-12" />
+    <link rel="stylesheet" href="styles.css?v=20260826-13" />
   </head>
   <body>
     <header class="site-header">
@@ -24,13 +24,6 @@
           <h1>Yu Index：基于绩点与教学班排名的课程给分水平指标</h1>
           <p class="report-byline">余荫铠 · SYSU-Phys-Bench</p>
         </header>
-
-        <section class="report-abstract" aria-labelledby="abstract-title">
-          <h2 id="abstract-title">摘要</h2>
-          <p>Yu Index 利用个人绩点与教学班排名，估计一门课程的教学班平均绩点。该指标将排名转换为标准正态分布中的相对位置，再从个人绩点中扣除相对表现对应的部分，从而得到与 GPA 同尺度的课程给分水平估计值。</p>
-          <p>SYSU-Phys-Bench 中 63 门课程的数据给出的典型班内绩点标准差为 0.341，公开公式取近似值 1/3。Yu Index 与教学班名次占比的相关系数由旧版公式的 0.948 降至新版公式的 −0.0004，避免了指标主要由排名驱动。</p>
-          <p class="report-keywords"><strong>关键词：</strong>Yu Index；课程给分；绩点；教学班排名；正态顺序统计量</p>
-        </section>
 
         <h2>1. 定义</h2>
         <p>不同课程的原始绩点同时混合了个人表现与课程评分尺度，直接比较 GPA 难以单独刻画课程给分水平<a class="citation" href="#ref-2" aria-label="参考文献 2">[2]</a><a class="citation" href="#ref-3" aria-label="参考文献 3">[3]</a><a class="citation" href="#ref-5" aria-label="参考文献 5">[5]</a>。Yu Index 使用个人绩点和教学班排名分离这两个部分。</p>
@@ -98,19 +91,19 @@
         <p>拟合得到 <i>σ</i><sub>0</sub> ≈ 0.341。公开定义取与该估计接近且形式简洁的 <i>σ</i><sub>0</sub> = 1/3，从而得到最终公式。</p>
 
         <h2>5. 数据校验</h2>
-        <p>在 63 门课程的数据中，旧版几何平均公式与教学班名次占比的皮尔逊相关系数为 0.948，指标变化主要由排名驱动。采用课程均值估计公式后，Yu Index 与教学班名次占比的相关系数约为 −0.0004，与个人绩点的相关系数约为 0.840。</p>
+        <p>在 63 门课程的数据中，Yu Index 与教学班名次占比的皮尔逊相关系数约为 −0.0004，与个人绩点的相关系数约为 0.840。前者表明 Yu Index 并不是教学班排名的线性复述，后者表明该指标仍然保留了绝对成绩信息。</p>
         <div class="table-frame report-table">
-          <table aria-label="新旧 Yu Index 相关性比较">
+          <table aria-label="Yu Index 相关性检验">
             <thead>
-              <tr><th>指标</th><th>与教学班名次占比的相关系数</th></tr>
+              <tr><th>变量关系</th><th>皮尔逊相关系数</th></tr>
             </thead>
             <tbody>
-              <tr><td>旧版 Yu Index</td><td>0.948</td></tr>
-              <tr><td>新版 Yu Index</td><td>−0.0004</td></tr>
+              <tr><td>Yu Index 与教学班名次占比</td><td>−0.0004</td></tr>
+              <tr><td>Yu Index 与个人绩点</td><td>0.840</td></tr>
             </tbody>
           </table>
         </div>
-        <p>新版指标不再把排名本身当作主要得分来源，而是用排名估计个人相对表现，再从绩点中扣除这一部分。</p>
+        <p>Yu Index 使用排名估计个人相对表现，再从绩点中扣除这一部分，以获得课程给分水平的估计值。</p>
 
         <h2>6. 计算示例</h2>
         <p>“热力学与统计物理”的个人绩点为 3.8，教学班排名为 2/43。由 Blom 位置得到 <i>p</i> ≈ 0.9624，进而得到 <i>z</i> ≈ 1.7796：</p>
