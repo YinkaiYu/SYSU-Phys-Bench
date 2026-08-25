@@ -391,6 +391,8 @@
           label: `${year}${term === "第一学期" ? "上" : "下"}`,
           fullLabel: `${year} ${term}`,
           gpa: weightedAverage(items, (row) => row.绩点),
+          rank: weightedAverage(items, (row) => parseRank(row.教学班排名).rank),
+          percentile: weightedAverage(items, (row) => parseRank(row.教学班排名).percentile),
           credits: items.reduce((sum, row) => sum + row.学分, 0),
           count: items.length,
         };
@@ -403,30 +405,61 @@
     container.replaceChildren();
     const legend = document.createElement("div");
     legend.className = "chart-legend-row";
-    legend.innerHTML = `<span><i class="line-key"></i>各学期绩点</span><span><i class="line-key cumulative"></i>累计绩点</span>`;
+    legend.innerHTML = `<span><i class="line-key"></i>各学期绩点</span><span><i class="line-key rank"></i>各学期排名</span><span><i class="line-key cumulative"></i>总绩点</span>`;
     container.append(legend);
 
     const width = Math.max(360, container.clientWidth || 900);
     const height = width < 520 ? 300 : 330;
-    const margin = { top: 20, right: 20, bottom: 48, left: 52 };
+    const margin = { top: 24, right: 54, bottom: 48, left: 52 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
-    const gpaMin = 3;
-    const gpaMax = 5;
-    const x = (index) => margin.left + (index / Math.max(semesterData.length - 1, 1)) * plotWidth;
-    const gpaY = (value) => margin.top + ((gpaMax - value) / (gpaMax - gpaMin)) * plotHeight;
-    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "各学期与累计学分加权绩点折线图" });
 
-    for (let i = 0; i <= 4; i += 1) {
-      const gpaValue = gpaMax - ((gpaMax - gpaMin) * i) / 4;
-      const yPos = margin.top + (plotHeight * i) / 4;
+    const niceDomain = (values, absolutePadding) => {
+      const rawMin = Math.min(...values);
+      const rawMax = Math.max(...values);
+      const rawSpan = Math.max(rawMax - rawMin, absolutePadding * 2);
+      const paddedMin = rawMin - Math.max(rawSpan * 0.12, absolutePadding);
+      const paddedMax = rawMax + Math.max(rawSpan * 0.12, absolutePadding);
+      const roughStep = (paddedMax - paddedMin) / 4;
+      const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+      const normalized = roughStep / magnitude;
+      const niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
+      const step = niceNormalized * magnitude;
+      const min = Math.floor(paddedMin / step) * step;
+      const max = Math.ceil(paddedMax / step) * step;
+      const ticks = [];
+      for (let value = min; value <= max + step / 2; value += step) ticks.push(Number(value.toFixed(8)));
+      return { min, max, ticks, step };
+    };
+
+    const gpaScale = niceDomain([...semesterData, ...cumulativeData].map((item) => item.gpa), 0.05);
+    const rankScale = niceDomain(semesterData.map((item) => item.rank), 1);
+    rankScale.min = Math.max(1, rankScale.min);
+    rankScale.ticks = rankScale.ticks.filter((value) => value >= rankScale.min);
+    if (rankScale.ticks[0] !== rankScale.min) rankScale.ticks.unshift(rankScale.min);
+    const gpaDigits = (String(gpaScale.step).split(".")[1] || "").length;
+    const x = (index) => margin.left + (index / Math.max(semesterData.length - 1, 1)) * plotWidth;
+    const gpaY = (value) => margin.top + ((gpaScale.max - value) / (gpaScale.max - gpaScale.min)) * plotHeight;
+    const rankY = (value) => margin.top + ((value - rankScale.min) / (rankScale.max - rankScale.min)) * plotHeight;
+    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "各学期绩点、各学期平均教学班排名与总绩点折线图" });
+
+    gpaScale.ticks.slice().reverse().forEach((gpaValue) => {
+      const yPos = gpaY(gpaValue);
       svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: yPos, y2: yPos, class: "grid-line" }));
-      svg.append(svgElement("text", { x: margin.left - 9, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, gpaValue.toFixed(1)));
-    }
+      svg.append(svgElement("text", { x: margin.left - 9, y: yPos + 4, "text-anchor": "end", class: "tick-label", fill: "#386b81" }, gpaValue.toFixed(gpaDigits)));
+    });
+    rankScale.ticks.forEach((rankValue) => {
+      const yPos = rankY(rankValue);
+      svg.append(svgElement("text", { x: width - margin.right + 9, y: yPos + 4, "text-anchor": "start", class: "tick-label", fill: "#748061" }, formatValue(rankValue, rankScale.step < 1 ? 1 : 0)));
+    });
+    svg.append(svgElement("text", { x: margin.left, y: 12, class: "tick-label", fill: "#386b81" }, "绩点"));
+    svg.append(svgElement("text", { x: width - margin.right, y: 12, "text-anchor": "end", class: "tick-label", fill: "#748061" }, "排名"));
 
     const semesterPoints = semesterData.map((item, index) => [x(index), gpaY(item.gpa)]);
     const cumulativePoints = cumulativeData.map((item, index) => [x(index), gpaY(item.gpa)]);
+    const rankPoints = semesterData.map((item, index) => [x(index), rankY(item.rank)]);
     const pathFor = (points) => points.map(([xPos, yPos], index) => `${index ? "L" : "M"}${xPos},${yPos}`).join(" ");
+    svg.append(svgElement("path", { d: pathFor(rankPoints), class: "rank-line" }));
     svg.append(svgElement("path", { d: pathFor(semesterPoints), class: "gpa-line" }));
     svg.append(svgElement("path", { d: pathFor(cumulativePoints), class: "cumulative-line" }));
 
@@ -435,21 +468,25 @@
       const xPos = x(index);
       const semesterYPos = semesterPoints[index][1];
       const cumulativeYPos = cumulativePoints[index][1];
+      const rankYPos = rankPoints[index][1];
       const axisLabel = width < 520 ? item.label.replace("大", "") : item.label;
       svg.append(svgElement("text", { x: xPos, y: height - 17, "text-anchor": "middle", class: "tick-label" }, axisLabel));
       const tooltipLines = [
         `本学期绩点 ${item.gpa.toFixed(4)}`,
-        `累计绩点 ${cumulativeItem.gpa.toFixed(4)}`,
+        `本学期排名 ${item.rank.toFixed(2)}`,
+        `排名百分位 ${item.percentile.toFixed(2)}%`,
+        `总绩点 ${cumulativeItem.gpa.toFixed(4)}`,
         `本学期 ${formatValue(item.credits, 1)} 学分 · ${item.count} 门课程`,
         `累计 ${formatValue(cumulativeItem.credits, 1)} 学分 · ${cumulativeItem.count} 门课程`,
       ];
       const semesterPoint = svgElement("circle", { cx: xPos, cy: semesterYPos, r: 4.5, class: "data-point", tabindex: 0 });
+      const rankPoint = svgElement("circle", { cx: xPos, cy: rankYPos, r: 4.5, class: "rank-point", tabindex: 0 });
       const cumulativePoint = svgElement("circle", { cx: xPos, cy: cumulativeYPos, r: 4.5, class: "cumulative-point", tabindex: 0 });
-      [semesterPoint, cumulativePoint].forEach((point) => {
+      [semesterPoint, rankPoint, cumulativePoint].forEach((point) => {
         point.addEventListener("pointermove", (event) => showTooltip(event, item.fullLabel, tooltipLines));
         point.addEventListener("pointerleave", hideTooltip);
       });
-      svg.append(semesterPoint, cumulativePoint);
+      svg.append(semesterPoint, rankPoint, cumulativePoint);
     });
     container.append(svg);
   }

@@ -252,6 +252,7 @@ tr:last-child td {
 }
 
 .gpa-line,
+.rank-line,
 .cumulative-line {
   fill: none;
   stroke-linecap: round;
@@ -266,6 +267,11 @@ tr:last-child td {
 .cumulative-line {
   stroke: var(--orange);
   stroke-dasharray: 7 4;
+}
+
+.rank-line {
+  stroke: var(--olive);
+  stroke-dasharray: 2 4;
 }
 
 .line-area {
@@ -296,6 +302,18 @@ tr:last-child td {
   outline: none;
 }
 
+.rank-point {
+  fill: var(--surface);
+  stroke: var(--olive);
+  stroke-width: 2;
+}
+
+.rank-point:hover,
+.rank-point:focus {
+  fill: var(--olive);
+  outline: none;
+}
+
 .chart-legend-row {
   display: flex;
   flex-wrap: wrap;
@@ -321,6 +339,11 @@ tr:last-child td {
 .line-key.cumulative {
   border-top-color: var(--orange);
   border-top-style: dashed;
+}
+
+.line-key.rank {
+  border-top-color: var(--olive);
+  border-top-style: dotted;
 }
 
 .quadrant-label {
