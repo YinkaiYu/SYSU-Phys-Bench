@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f6f7f5" />
     <title>Yu Index 技术报告 · SYSU-Phys-Bench</title>
-    <link rel="stylesheet" href="styles.css?v=20260826-10" />
+    <link rel="stylesheet" href="styles.css?v=20260826-11" />
   </head>
   <body>
     <header class="site-header">
@@ -20,10 +20,20 @@
 
     <main class="shell">
       <article class="report-article section section-first">
-        <h1>Yu Index：基于绩点与教学班排名的课程给分水平指标</h1>
-        <p class="report-lead">Yu Index 利用个人绩点与教学班排名，估计一门课程的教学班平均绩点。它把个人成绩中的相对表现部分扣除，留下可用于比较课程给分水平的估计量。</p>
+        <header class="report-title-block">
+          <h1>Yu Index：基于绩点与教学班排名的课程给分水平指标</h1>
+          <p class="report-byline">余荫铠 · SYSU-Phys-Bench</p>
+        </header>
+
+        <section class="report-abstract" aria-labelledby="abstract-title">
+          <h2 id="abstract-title">摘要</h2>
+          <p>Yu Index 利用个人绩点与教学班排名，估计一门课程的教学班平均绩点。该指标将排名转换为标准正态分布中的相对位置，再从个人绩点中扣除相对表现对应的部分，从而得到与 GPA 同尺度的课程给分水平估计值。</p>
+          <p>SYSU-Phys-Bench 中 63 门课程的数据给出的典型班内绩点标准差为 0.341，公开公式取近似值 1/3。Yu Index 与教学班名次占比的相关系数由旧版公式的 0.948 降至新版公式的 −0.0004，避免了指标主要由排名驱动。</p>
+          <p class="report-keywords"><strong>关键词：</strong>Yu Index；课程给分；绩点；教学班排名；正态顺序统计量</p>
+        </section>
 
         <h2>1. 定义</h2>
+        <p>不同课程的原始绩点同时混合了个人表现与课程评分尺度，直接比较 GPA 难以单独刻画课程给分水平<a class="citation" href="#ref-2" aria-label="参考文献 2">[2]</a><a class="citation" href="#ref-3" aria-label="参考文献 3">[3]</a><a class="citation" href="#ref-5" aria-label="参考文献 5">[5]</a>。Yu Index 使用个人绩点和教学班排名分离这两个部分。</p>
         <div class="yu-index-formula" aria-label="Yu Index 等于个人绩点减去三分之一乘以教学班排名所对应的标准正态分位数">
           <math display="block">
             <mrow>
@@ -63,7 +73,7 @@
         <p>因此，Yu Index 不是把绩点与排名任意加权，而是在估计一个与 GPA 同尺度的量：课程的教学班平均绩点。</p>
 
         <h2>3. 将教学班排名转换为正态位置</h2>
-        <p>教学班共有 <i>n</i> 人时，第 <i>r</i> 名从低到高对应第 <i>n</i> − <i>r</i> + 1 个观测。采用 Blom 正态顺序统计量位置，将名次转换为累积概率：</p>
+        <p>教学班共有 <i>n</i> 人时，第 <i>r</i> 名从低到高对应第 <i>n</i> − <i>r</i> + 1 个观测。采用 Blom 正态顺序统计量位置，将名次转换为累积概率<a class="citation" href="#ref-1" aria-label="参考文献 1">[1]</a>：</p>
         <div class="yu-index-formula">
           <math display="block">
             <mrow>
@@ -128,15 +138,15 @@
         <p>它回答的问题是“根据这份个人成绩与教学班名次，这门课程的整体给分大约处于什么水平”。不同课程的 Yu Index 可以直接按 GPA 尺度比较，也更适合比较明显的给分区间差异。</p>
 
         <h2>8. 方法关系</h2>
-        <p>教育测量研究长期关注原始 GPA 混合学生表现、课程选择与评分尺度的问题。Grade Lift、adjusted GPA、Achievement Index 与 calibrated GPA 等方法都试图分离学生水平和课程给分差异。Yu Index 面向只有“一个人的绩点与教学班排名”的数据条件，以正态顺序统计量提供的相对位置信息完成课程平均绩点估计。</p>
+        <p>教育测量研究长期关注原始 GPA 混合学生表现、课程选择与评分尺度的问题。Adjusted GPA<a class="citation" href="#ref-2" aria-label="参考文献 2">[2]</a>、Achievement Index<a class="citation" href="#ref-3" aria-label="参考文献 3">[3]</a>、Grade Lift<a class="citation" href="#ref-4" aria-label="参考文献 4">[4]</a> 与 calibrated GPA<a class="citation" href="#ref-5" aria-label="参考文献 5">[5]</a> 等方法都试图分离学生水平和课程给分差异。Yu Index 面向只有“一个人的绩点与教学班排名”的数据条件，以正态顺序统计量提供的相对位置信息完成课程平均绩点估计。</p>
 
         <h2>参考文献</h2>
         <ol class="report-reference-list">
-          <li>Blom, G. (1958). <a href="https://books.google.com/books/about/Statistical_Estimates_and_Transformed_Be.html?id=rWoGAQAAIAAJ">Statistical Estimates and Transformed Beta-Variables</a>. Wiley.</li>
-          <li>Caulkins, J. P., Larkey, P. D., &amp; Wei, J. (1996). <a href="https://doi.org/10.1184/R1/6470981.v1">Adjusting GPA to Reflect Course Difficulty</a>. Carnegie Mellon University.</li>
-          <li>Johnson, V. E. (1997). <a href="https://projecteuclid.org/journals/statistical-science/volume-12/issue-4/An-alternative-to-traditional-GPA-for-evaluating-student-performance/10.1214/ss/1030037959.pdf">An Alternative to Traditional GPA for Evaluating Student Performance</a>. <i>Statistical Science</i>, 12(4), 251–278.</li>
-          <li>Millet, I. (2010). <a href="https://openpublishing.library.umass.edu/pare/article/1556/galley/1507/view/">Improving Grading Consistency through Grade Lift Reporting</a>. <i>Practical Assessment, Research &amp; Evaluation</i>, 15(4).</li>
-          <li>Tomkin, J. H., &amp; West, M. (2022). <a href="https://link.springer.com/article/10.1186/s40594-022-00343-1">STEM courses are harder: evaluating inter-course grading disparities with a calibrated GPA model</a>. <i>International Journal of STEM Education</i>, 9, 27.</li>
+          <li id="ref-1">Blom, G. (1958). <a href="https://books.google.com/books/about/Statistical_Estimates_and_Transformed_Be.html?id=rWoGAQAAIAAJ"><i>Statistical Estimates and Transformed Beta-Variables</i></a>. New York: Wiley.</li>
+          <li id="ref-2">Caulkins, J. P., Larkey, P. D., &amp; Wei, J. (1996). <a href="https://doi.org/10.1184/R1/6470981.v1"><i>Adjusting GPA to Reflect Course Difficulty</i></a>. Pittsburgh: Carnegie Mellon University.</li>
+          <li id="ref-3">Johnson, V. E. (1997). <a href="https://projecteuclid.org/journals/statistical-science/volume-12/issue-4/An-alternative-to-traditional-GPA-for-evaluating-student-performance/10.1214/ss/1030037959.pdf">An alternative to traditional GPA for evaluating student performance</a>. <i>Statistical Science</i>, 12(4), 251–278. <a href="https://doi.org/10.1214/ss/1030037959">https://doi.org/10.1214/ss/1030037959</a>.</li>
+          <li id="ref-4">Millet, I. (2010). <a href="https://openpublishing.library.umass.edu/pare/article/1556/galley/1507/view/">Improving grading consistency through Grade Lift reporting</a>. <i>Practical Assessment, Research &amp; Evaluation</i>, 15(4).</li>
+          <li id="ref-5">Tomkin, J. H., &amp; West, M. (2022). <a href="https://link.springer.com/article/10.1186/s40594-022-00343-1">STEM courses are harder: evaluating inter-course grading disparities with a calibrated GPA model</a>. <i>International Journal of STEM Education</i>, 9, 27. <a href="https://doi.org/10.1186/s40594-022-00343-1">https://doi.org/10.1186/s40594-022-00343-1</a>.</li>
         </ol>
 
         <p><a class="report-back-link" href="index.html#yu-index">返回 SYSU-Phys-Bench</a></p>
