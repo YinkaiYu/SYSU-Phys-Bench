@@ -434,7 +434,7 @@ tr:last-child td {
   padding: 14px 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: #f2f6f6;
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
