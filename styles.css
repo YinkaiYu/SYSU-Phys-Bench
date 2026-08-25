@@ -1101,10 +1101,11 @@ body.chart-expanded {
 
 .yu-index-score i {
   position: relative;
-  height: 7px;
+  height: 8px;
   overflow: hidden;
+  border: 1px solid rgba(36, 78, 97, 0.16);
   border-radius: 999px;
-  background: #d5e1e4;
+  background: rgba(255, 255, 255, 0.68);
 }
 
 .yu-index-score i::after {
@@ -1114,6 +1115,16 @@ body.chart-expanded {
   border-radius: inherit;
   background: var(--blue-dark);
   content: "";
+}
+
+.detail-frame tbody tr[data-credit-level="3"] .yu-index-score i {
+  border-color: rgba(23, 56, 70, 0.28);
+  background: #f8fbfc;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.42);
+}
+
+.detail-frame tbody tr[data-credit-level="3"] .yu-index-score i::after {
+  background: #173846;
 }
 
 .empty-row td {
