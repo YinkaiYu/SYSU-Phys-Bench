@@ -765,7 +765,46 @@ tr:last-child td {
 #score-rank-card.is-expanded .chart-card-heading h3,
 #yu-rank-card:fullscreen .chart-card-heading h3,
 #yu-rank-card.is-expanded .chart-card-heading h3 {
-  font-size: clamp(20px, 2.4vw, 28px);
+  font-size: clamp(24px, 2.8vw, 34px);
+}
+
+#score-rank-card:fullscreen .tick-label,
+#score-rank-card.is-expanded .tick-label,
+#yu-rank-card:fullscreen .tick-label,
+#yu-rank-card.is-expanded .tick-label {
+  font-size: 16px;
+}
+
+#score-rank-card:fullscreen .quadrant-label,
+#score-rank-card.is-expanded .quadrant-label,
+#yu-rank-card:fullscreen .yu-benchmark-label,
+#yu-rank-card:fullscreen .yu-benchmark-value,
+#yu-rank-card.is-expanded .yu-benchmark-label,
+#yu-rank-card.is-expanded .yu-benchmark-value {
+  stroke-width: 4px;
+  font-size: 14px;
+}
+
+#score-rank-card:fullscreen .scatter-course-label,
+#score-rank-card.is-expanded .scatter-course-label,
+#yu-rank-card:fullscreen .scatter-course-label,
+#yu-rank-card.is-expanded .scatter-course-label {
+  stroke-width: 5px;
+  font-size: 15px;
+}
+
+#score-rank-card:fullscreen .scatter-label-line,
+#score-rank-card.is-expanded .scatter-label-line,
+#yu-rank-card:fullscreen .scatter-label-line,
+#yu-rank-card.is-expanded .scatter-label-line {
+  stroke-width: 1.15;
+}
+
+#score-rank-card:fullscreen .grid-line,
+#score-rank-card.is-expanded .grid-line,
+#yu-rank-card:fullscreen .grid-line,
+#yu-rank-card.is-expanded .grid-line {
+  stroke-width: 1.15;
 }
 
 body.chart-expanded {

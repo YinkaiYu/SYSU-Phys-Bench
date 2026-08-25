@@ -827,8 +827,9 @@
       text: truncateText(row.课程, compact ? (width < 520 ? 5 : 9) : 18),
     }));
 
+    const densityRadius = compact ? 42 : 58;
     labels.forEach((item) => {
-      item.density = labels.filter((other) => other !== item && Math.hypot(other.pointX - item.pointX, other.pointY - item.pointY) < 42).length;
+      item.density = labels.filter((other) => other !== item && Math.hypot(other.pointX - item.pointX, other.pointY - item.pointY) < densityRadius).length;
     });
     labels.sort((a, b) => b.density - a.density || b.row.学分 - a.row.学分);
 
@@ -836,13 +837,13 @@
     const directions = [
       [1, 0], [-1, 0], [0.72, -0.72], [0.72, 0.72], [-0.72, -0.72], [-0.72, 0.72], [0, -1], [0, 1],
     ];
-    const radii = compact ? [9, 14, 21, 30, 42] : [12, 19, 28, 40, 54, 70, 88];
+    const radii = compact ? [9, 14, 21, 30, 42] : [16, 24, 34, 48, 64, 84, 106];
     const overlapArea = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
     labels.forEach((item) => {
-      const textWidth = Array.from(item.text).reduce((sum, character) => sum + (/^[\x20-\x7e]$/.test(character) ? (compact ? 4.6 : 5.8) : (compact ? 8 : 10)), 4);
-      const textHeight = compact ? 10 : 12;
+      const textWidth = Array.from(item.text).reduce((sum, character) => sum + (/^[\x20-\x7e]$/.test(character) ? (compact ? 4.6 : 8) : (compact ? 8 : 14)), 4);
+      const textHeight = compact ? 10 : 17;
       let bestCandidate = null;
 
       radii.forEach((radius) => {
@@ -851,7 +852,7 @@
           const offsetY = directionY * radius;
           const anchor = offsetX > 3 ? "start" : offsetX < -3 ? "end" : "middle";
           const labelX = item.pointX + offsetX;
-          const labelY = item.pointY + offsetY + (compact ? 3 : 4);
+          const labelY = item.pointY + offsetY + (compact ? 3 : 5);
           const left = anchor === "start" ? labelX : anchor === "end" ? labelX - textWidth : labelX - textWidth / 2;
           const box = { left, right: left + textWidth, top: labelY - textHeight + 2, bottom: labelY + 2 };
           if (box.left < bounds.left || box.right > bounds.right || box.top < bounds.top || box.bottom > bounds.bottom) return;
@@ -865,7 +866,7 @@
 
       if (!bestCandidate) {
         const labelX = clamp(item.pointX + 12, bounds.left, bounds.right - textWidth);
-        const labelY = clamp(item.pointY + (compact ? 3 : 4), bounds.top + textHeight, bounds.bottom - 2);
+        const labelY = clamp(item.pointY + (compact ? 3 : 5), bounds.top + textHeight, bounds.bottom - 2);
         bestCandidate = {
           anchor: "start",
           box: { left: labelX, right: labelX + textWidth, top: labelY - textHeight + 2, bottom: labelY + 2 },
@@ -913,7 +914,7 @@
     }
     const width = Math.max(360, container.clientWidth || 720);
     const height = expanded ? Math.max(560, container.clientHeight || window.innerHeight - 84) : width < 520 ? 320 : 350;
-    const margin = { top: 58, right: 20, bottom: 52, left: 64 };
+    const margin = expanded ? { top: 76, right: 32, bottom: 72, left: 84 } : { top: 58, right: 20, bottom: 52, left: 64 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     const minScore = 2.5;
@@ -944,7 +945,7 @@
     [1, 2, 5, 10, 20, 50, 100].forEach((value) => {
       const xPos = x(value);
       svg.append(svgElement("line", { x1: xPos, x2: xPos, y1: margin.top, y2: height - margin.bottom, class: "grid-line" }));
-      svg.append(svgElement("text", { x: xPos, y: height - 19, "text-anchor": "middle", class: "tick-label" }, `${value}%`));
+      svg.append(svgElement("text", { x: xPos, y: height - (expanded ? 29 : 19), "text-anchor": "middle", class: "tick-label" }, `${value}%`));
     });
     [2.5, 3, 3.5, 4, 4.5, 5].forEach((value) => {
       const yPos = y(value);
@@ -953,30 +954,32 @@
     });
     svg.append(svgElement("line", { x1: medianX, x2: medianX, y1: margin.top, y2: height - margin.bottom, class: "quadrant-line" }));
     svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: medianY, y2: medianY, class: "quadrant-line" }));
-    svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - 3, "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
+    svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - (expanded ? 5 : 3), "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
-    svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "绩点"));
+    const yAxisLabelX = expanded ? 22 : 16;
+    svg.append(svgElement("text", { x: yAxisLabelX, y: yAxisCenter, transform: `rotate(-90 ${yAxisLabelX} ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "绩点"));
 
     if (width >= 620) {
-      svg.append(svgElement("text", { x: margin.left + 8, y: margin.top + 16, class: "quadrant-label" }, "排名较低 · 绩点较高（课程给分高）"));
-      svg.append(svgElement("text", { x: width - margin.right - 8, y: height - margin.bottom - 9, "text-anchor": "end", class: "quadrant-label" }, "排名较高 · 绩点较低（课程给分低）"));
+      svg.append(svgElement("text", { x: margin.left + 8, y: margin.top + (expanded ? 22 : 16), class: "quadrant-label" }, "排名较低 · 绩点较高（课程给分高）"));
+      svg.append(svgElement("text", { x: width - margin.right - 8, y: height - margin.bottom - (expanded ? 12 : 9), "text-anchor": "end", class: "quadrant-label" }, "排名较高 · 绩点较低（课程给分低）"));
     }
 
-    const legendStep = 70;
+    const legendStep = expanded ? 92 : 70;
     const legendWidth = legendStep * Object.keys(categoryColors).length;
-    const legend = svgElement("g", { transform: `translate(${Math.max(margin.left, width - margin.right - legendWidth)},24)` });
+    const legend = svgElement("g", { transform: `translate(${Math.max(margin.left, width - margin.right - legendWidth)},${expanded ? 32 : 24})` });
     Object.entries(categoryColors).forEach(([label, color], index) => {
       const offset = index * legendStep;
-      legend.append(scatterSymbol(label, offset + 5, 0, 4, { fill: color }));
-      legend.append(svgElement("text", { x: offset + 12, y: 4, class: "tick-label" }, label));
+      legend.append(scatterSymbol(label, offset + (expanded ? 7 : 5), 0, expanded ? 5.5 : 4, { fill: color }));
+      legend.append(svgElement("text", { x: offset + (expanded ? 17 : 12), y: expanded ? 5 : 4, class: "tick-label" }, label));
     });
     svg.append(legend);
 
     appendScatterCourseLabels(svg, data, x, y, (row) => row.绩点, margin, width, height, !expanded);
     data.forEach((row) => {
-      const marker = scatterSymbol(row.类别, x(row.rankPercentile), y(row.绩点), 3 + Math.sqrt(row.学分) * 1.15, {
+      const marker = scatterSymbol(row.类别, x(row.rankPercentile), y(row.绩点), (3 + Math.sqrt(row.学分) * 1.15) * (expanded ? 1.8 : 1), {
+        class: "scatter-point",
         stroke: "#ffffff",
-        "stroke-width": 1,
+        "stroke-width": expanded ? 1.5 : 1,
         opacity: 0.78,
         tabindex: 0,
       });
@@ -1012,7 +1015,7 @@
     const expanded = isYuScatterExpanded();
     const width = Math.max(360, container.clientWidth || 720);
     const height = expanded ? Math.max(560, container.clientHeight || window.innerHeight - 84) : width < 520 ? 330 : 390;
-    const margin = { top: 58, right: 20, bottom: 52, left: 64 };
+    const margin = expanded ? { top: 76, right: 32, bottom: 72, left: 84 } : { top: 58, right: 20, bottom: 52, left: 64 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     const minRank = 0.5;
@@ -1028,38 +1031,40 @@
     [1, 2, 5, 10, 20, 50, 100].forEach((value) => {
       const xPos = x(value);
       svg.append(svgElement("line", { x1: xPos, x2: xPos, y1: margin.top, y2: height - margin.bottom, class: "grid-line" }));
-      svg.append(svgElement("text", { x: xPos, y: height - 19, "text-anchor": "middle", class: "tick-label" }, `${value}%`));
+      svg.append(svgElement("text", { x: xPos, y: height - (expanded ? 29 : 19), "text-anchor": "middle", class: "tick-label" }, `${value}%`));
     });
     [2.5, 3, 3.5, 4, 4.5, 5].forEach((value) => {
       const yPos = y(value);
       svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: yPos, y2: yPos, class: "grid-line" }));
       svg.append(svgElement("text", { x: margin.left - 8, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, value.toFixed(1)));
     });
-    svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - 3, "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
+    svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - (expanded ? 5 : 3), "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
-    svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index"));
+    const yAxisLabelX = expanded ? 22 : 16;
+    svg.append(svgElement("text", { x: yAxisLabelX, y: yAxisCenter, transform: `rotate(-90 ${yAxisLabelX} ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index"));
 
     const benchmarkY = y(yuIndexBenchmark);
     svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: benchmarkY, y2: benchmarkY, class: "yu-benchmark-line" }));
-    svg.append(svgElement("text", { x: width - margin.right - 8, y: benchmarkY - 7, "text-anchor": "end", class: "yu-benchmark-label" }, "给分较友好"));
-    svg.append(svgElement("text", { x: width - margin.right - 8, y: benchmarkY + 15, "text-anchor": "end", class: "yu-benchmark-label" }, "给分较严格"));
-    svg.append(svgElement("text", { x: margin.left + 7, y: benchmarkY - 7, class: "yu-benchmark-value" }, `数据集中位数 ${yuIndexBenchmark.toFixed(2)}`));
+    svg.append(svgElement("text", { x: width - margin.right - 8, y: benchmarkY - (expanded ? 10 : 7), "text-anchor": "end", class: "yu-benchmark-label" }, "给分较友好"));
+    svg.append(svgElement("text", { x: width - margin.right - 8, y: benchmarkY + (expanded ? 20 : 15), "text-anchor": "end", class: "yu-benchmark-label" }, "给分较严格"));
+    svg.append(svgElement("text", { x: margin.left + 7, y: benchmarkY - (expanded ? 10 : 7), class: "yu-benchmark-value" }, `数据集中位数 ${yuIndexBenchmark.toFixed(2)}`));
 
-    const legendStep = 70;
+    const legendStep = expanded ? 92 : 70;
     const legendWidth = legendStep * Object.keys(categoryColors).length;
-    const legend = svgElement("g", { transform: `translate(${Math.max(margin.left, width - margin.right - legendWidth)},24)` });
+    const legend = svgElement("g", { transform: `translate(${Math.max(margin.left, width - margin.right - legendWidth)},${expanded ? 32 : 24})` });
     Object.entries(categoryColors).forEach(([label, color], index) => {
       const offset = index * legendStep;
-      legend.append(scatterSymbol(label, offset + 5, 0, 4, { fill: color }));
-      legend.append(svgElement("text", { x: offset + 12, y: 4, class: "tick-label" }, label));
+      legend.append(scatterSymbol(label, offset + (expanded ? 7 : 5), 0, expanded ? 5.5 : 4, { fill: color }));
+      legend.append(svgElement("text", { x: offset + (expanded ? 17 : 12), y: expanded ? 5 : 4, class: "tick-label" }, label));
     });
     svg.append(legend);
 
     appendScatterCourseLabels(svg, data, x, y, (row) => row["Yu Index"], margin, width, height, !expanded);
     data.forEach((row) => {
-      const marker = scatterSymbol(row.类别, x(row.rankPercentile), y(row["Yu Index"]), 3 + Math.sqrt(row.学分) * 1.15, {
+      const marker = scatterSymbol(row.类别, x(row.rankPercentile), y(row["Yu Index"]), (3 + Math.sqrt(row.学分) * 1.15) * (expanded ? 1.8 : 1), {
+        class: "scatter-point",
         stroke: "#ffffff",
-        "stroke-width": 1,
+        "stroke-width": expanded ? 1.5 : 1,
         opacity: 0.8,
         tabindex: 0,
       });
@@ -1095,7 +1100,7 @@
       }
       const clone = source.cloneNode(true);
       const viewBox = source.viewBox.baseVal;
-      const titleHeight = 58;
+      const titleHeight = 82;
       const exportHeight = viewBox.height + titleHeight;
       const exportScale = Math.max(2, Math.min(3, 3600 / viewBox.width));
       clone.setAttribute("width", viewBox.width);
@@ -1109,19 +1114,20 @@
 
       const style = svgElement("style", {}, `
         svg { font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
-        .tick-label { fill: #737c82; font-family: Consolas, monospace; font-size: 11px; }
-        .grid-line { stroke: #e8ebe9; stroke-width: 1; }
-        .quadrant-line { stroke: #7d878c; stroke-dasharray: 4 4; stroke-width: 1; }
-        .quadrant-label { fill: #7b858a; font-size: 10px; letter-spacing: 0.02em; }
-        .yu-benchmark-line { stroke: #667278; stroke-dasharray: 6 4; stroke-width: 1.2; }
-        .yu-benchmark-label, .yu-benchmark-value { fill: #59666c; stroke: #ffffff; stroke-width: 3px; paint-order: stroke; font-size: 10px; }
+        .tick-label { fill: #737c82; font-family: Consolas, monospace; font-size: 16px; }
+        .grid-line { stroke: #e8ebe9; stroke-width: 1.2; }
+        .quadrant-line { stroke: #7d878c; stroke-dasharray: 5 5; stroke-width: 1.3; }
+        .quadrant-label { fill: #7b858a; stroke: #ffffff; stroke-width: 4px; paint-order: stroke; font-size: 14px; letter-spacing: 0.02em; }
+        .yu-benchmark-line { stroke: #667278; stroke-dasharray: 7 5; stroke-width: 1.4; }
+        .yu-benchmark-label, .yu-benchmark-value { fill: #59666c; stroke: #ffffff; stroke-width: 4px; paint-order: stroke; font-size: 14px; }
         .yu-benchmark-label { font-weight: 650; }
-        .scatter-label-line { stroke: rgba(75, 87, 93, 0.34); stroke-width: 0.8; }
-        .scatter-course-label { fill: #34434a; stroke: #ffffff; stroke-width: 3px; paint-order: stroke; font-size: 10px; }
-        .export-title { fill: #1f3139; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+        .scatter-label-line { stroke: rgba(75, 87, 93, 0.42); stroke-width: 1.15; }
+        .scatter-course-label { fill: #34434a; stroke: #ffffff; stroke-width: 5px; paint-order: stroke; font-size: 15px; }
+        .scatter-point { stroke-width: 1.6px; }
+        .export-title { fill: #1f3139; font-size: 30px; font-weight: 700; letter-spacing: -0.01em; }
       `);
       clone.append(style);
-      clone.append(svgElement("text", { x: viewBox.width / 2, y: 36, "text-anchor": "middle", class: "export-title" }, expandedTitle));
+      clone.append(svgElement("text", { x: viewBox.width / 2, y: 52, "text-anchor": "middle", class: "export-title" }, expandedTitle));
       clone.append(chartGroup);
 
       const svgBlob = new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" });
