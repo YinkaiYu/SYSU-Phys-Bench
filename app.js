@@ -48,6 +48,11 @@
     });
   }
 
+  function truncateText(value, maxLength = 28) {
+    const characters = Array.from(String(value).trim());
+    return characters.length > maxLength ? `${characters.slice(0, maxLength).join("")}…` : characters.join("");
+  }
+
   function parseRank(value) {
     const match = String(value).match(/^(\d+)\/(\d+)$/);
     if (!match) return { rank: NaN, total: NaN, percentile: NaN };
@@ -593,7 +598,14 @@
         opacity: 0.78,
         tabindex: 0,
       });
-      circle.addEventListener("pointermove", (event) => showTooltip(event, row.课程, [`成绩 ${row.最终成绩}`, `教学班排名 ${row.教学班排名}`, `排名百分位 ${row.rankPercentile.toFixed(2)}%`, `${row.学分} 学分 · ${row.类别}`]));
+      const tooltipLines = [
+        ...(row.教师 ? [`教师 ${truncateText(row.教师)}`] : []),
+        `成绩 ${row.最终成绩}`,
+        `教学班排名 ${row.教学班排名}`,
+        `排名百分位 ${row.rankPercentile.toFixed(2)}%`,
+        `${row.学分} 学分 · ${row.类别}`,
+      ];
+      circle.addEventListener("pointermove", (event) => showTooltip(event, row.课程, tooltipLines));
       circle.addEventListener("pointerleave", hideTooltip);
       circle.addEventListener("focus", () => circle.setAttribute("opacity", "1"));
       circle.addEventListener("blur", () => circle.setAttribute("opacity", "0.78"));
