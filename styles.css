@@ -107,7 +107,7 @@ nav a:focus-visible {
 }
 
 .methodology-body {
-  max-width: 940px;
+  width: 100%;
   margin-top: 24px;
   color: #35464e;
   font-size: 16px;
@@ -143,7 +143,7 @@ h1 {
 }
 
 .author-note {
-  max-width: 920px;
+  width: 100%;
   margin: 18px 0 0;
   padding-left: 16px;
   border-left: 3px solid var(--blue);
