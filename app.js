@@ -1113,6 +1113,9 @@
         .grid-line { stroke: #e8ebe9; stroke-width: 1; }
         .quadrant-line { stroke: #7d878c; stroke-dasharray: 4 4; stroke-width: 1; }
         .quadrant-label { fill: #7b858a; font-size: 10px; letter-spacing: 0.02em; }
+        .yu-benchmark-line { stroke: #667278; stroke-dasharray: 6 4; stroke-width: 1.2; }
+        .yu-benchmark-label, .yu-benchmark-value { fill: #59666c; stroke: #ffffff; stroke-width: 3px; paint-order: stroke; font-size: 10px; }
+        .yu-benchmark-label { font-weight: 650; }
         .scatter-label-line { stroke: rgba(75, 87, 93, 0.34); stroke-width: 0.8; }
         .scatter-course-label { fill: #34434a; stroke: #ffffff; stroke-width: 3px; paint-order: stroke; font-size: 10px; }
         .export-title { fill: #1f3139; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }

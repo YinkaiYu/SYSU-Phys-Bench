@@ -99,7 +99,7 @@ nav a:focus-visible {
 }
 
 .benchmark-section {
-  padding-top: 44px;
+  padding-top: 72px;
 }
 
 .scorecards-section {
@@ -432,15 +432,11 @@ tr:last-child td {
   box-shadow: var(--shadow);
 }
 
-.benchmark-filter-panel {
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+.benchmark-controls {
+  margin-top: 24px;
 }
 
-.benchmark-filter-panel + .chart-card,
+.benchmark-controls + .chart-card,
 .secondary-scatter-card {
   margin-top: 18px;
 }
@@ -462,7 +458,7 @@ tr:last-child td {
   display: grid;
   grid-template-columns: repeat(3, minmax(118px, auto)) minmax(240px, 1fr) auto;
   gap: 9px;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .scatter-filters input[type="search"],
@@ -728,6 +724,13 @@ tr:last-child td {
   inset: 0;
   z-index: 100;
   overflow: auto;
+}
+
+#score-rank-card:fullscreen .chart-card-heading h3,
+#score-rank-card.is-expanded .chart-card-heading h3,
+#yu-rank-card:fullscreen .chart-card-heading h3,
+#yu-rank-card.is-expanded .chart-card-heading h3 {
+  font-size: clamp(20px, 2.4vw, 28px);
 }
 
 body.chart-expanded {
