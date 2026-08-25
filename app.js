@@ -522,14 +522,65 @@
     });
   }
 
+  function isScatterExpanded() {
+    const card = $("#score-rank-card");
+    return document.fullscreenElement === card || card.classList.contains("is-expanded");
+  }
+
+  function appendScatterCourseLabels(svg, data, x, y, margin, width, height) {
+    const midpoint = margin.left + (width - margin.left - margin.right) / 2;
+    const top = margin.top + 12;
+    const bottom = height - margin.bottom - 4;
+    const gap = 13;
+    const labels = data.map((row) => ({
+      row,
+      pointX: x(row.rankPercentile),
+      pointY: y(row.最终成绩),
+      side: x(row.rankPercentile) < midpoint ? "right" : "left",
+    }));
+
+    ["left", "right"].forEach((side) => {
+      const sideLabels = labels.filter((item) => item.side === side).sort((a, b) => a.pointY - b.pointY);
+      let cursor = top;
+      sideLabels.forEach((item) => {
+        item.labelY = Math.max(item.pointY + 3, cursor);
+        cursor = item.labelY + gap;
+      });
+      const overflow = sideLabels.length ? sideLabels[sideLabels.length - 1].labelY - bottom : 0;
+      if (overflow > 0) sideLabels.forEach((item) => { item.labelY -= overflow; });
+      for (let index = sideLabels.length - 2; index >= 0; index -= 1) {
+        sideLabels[index].labelY = Math.min(sideLabels[index].labelY, sideLabels[index + 1].labelY - gap);
+      }
+    });
+
+    labels.forEach((item) => {
+      const labelX = item.side === "right" ? item.pointX + 10 : item.pointX - 10;
+      const lineEndX = item.side === "right" ? labelX - 2 : labelX + 2;
+      svg.append(svgElement("line", {
+        x1: item.pointX,
+        y1: item.pointY,
+        x2: lineEndX,
+        y2: item.labelY - 3,
+        class: "scatter-label-line",
+      }));
+      svg.append(svgElement("text", {
+        x: labelX,
+        y: item.labelY,
+        "text-anchor": item.side === "right" ? "start" : "end",
+        class: "scatter-course-label",
+      }, truncateText(item.row.课程, 18)));
+    });
+  }
+
   function renderScatter() {
     const container = $("#score-rank-scatter");
     container.replaceChildren();
+    const expanded = isScatterExpanded();
     const data = rows
       .filter((row) => typeof row.最终成绩 === "number")
       .map((row) => ({ ...row, rankPercentile: parseRank(row.教学班排名).percentile }));
     const width = Math.max(360, container.clientWidth || 720);
-    const height = width < 520 ? 320 : 350;
+    const height = expanded ? Math.max(560, container.clientHeight || window.innerHeight - 84) : width < 520 ? 320 : 350;
     const margin = { top: 48, right: 20, bottom: 52, left: 52 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
@@ -611,7 +662,46 @@
       circle.addEventListener("blur", () => circle.setAttribute("opacity", "0.78"));
       svg.append(circle);
     });
+    if (expanded) appendScatterCourseLabels(svg, data, x, y, margin, width, height);
     container.append(svg);
+  }
+
+  function setupScatterFullscreen() {
+    const card = $("#score-rank-card");
+    const button = $("#scatter-fullscreen");
+
+    const update = () => {
+      const expanded = isScatterExpanded();
+      button.textContent = expanded ? "退出全屏" : "全屏";
+      button.setAttribute("aria-label", expanded ? "退出课程成绩与教学班排名百分位全屏" : "全屏查看课程成绩与教学班排名百分位");
+      renderScatter();
+    };
+
+    button.addEventListener("click", async () => {
+      if (document.fullscreenElement === card) {
+        await document.exitFullscreen();
+        return;
+      }
+      if (card.classList.contains("is-expanded")) {
+        card.classList.remove("is-expanded");
+        document.body.classList.remove("chart-expanded");
+        update();
+        return;
+      }
+      if (card.requestFullscreen) {
+        try {
+          await card.requestFullscreen();
+          return;
+        } catch (_error) {
+          // Continue with the in-page full-screen fallback.
+        }
+      }
+      card.classList.add("is-expanded");
+      document.body.classList.add("chart-expanded");
+      update();
+    });
+
+    document.addEventListener("fullscreenchange", update);
   }
 
   function renderCharts() {
@@ -627,6 +717,7 @@
   setupFilters();
   updateSortIndicators();
   renderDetailsBody();
+  setupScatterFullscreen();
   renderCharts();
 
   let resizeTimer;

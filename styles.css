@@ -189,6 +189,67 @@ tr:last-child td {
   box-shadow: var(--shadow);
 }
 
+.chart-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.fullscreen-button {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.fullscreen-button:hover,
+.fullscreen-button:focus-visible {
+  border-color: var(--blue);
+  color: var(--blue-dark);
+  background: #f6fafb;
+  outline: none;
+}
+
+#score-rank-card:fullscreen,
+#score-rank-card.is-expanded {
+  padding: 24px 28px;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+#score-rank-card:fullscreen {
+  overflow: auto;
+}
+
+#score-rank-card.is-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: auto;
+}
+
+body.chart-expanded {
+  overflow: hidden;
+}
+
+#score-rank-card:fullscreen .chart-scatter,
+#score-rank-card.is-expanded .chart-scatter {
+  height: calc(100vh - 84px);
+  min-height: 560px;
+}
+
+#score-rank-card:fullscreen .chart-scatter svg,
+#score-rank-card.is-expanded .chart-scatter svg {
+  height: 100%;
+}
+
 .chart-card-small {
   grid-column: span 5;
 }
@@ -356,6 +417,20 @@ tr:last-child td {
   stroke: #7d878c;
   stroke-dasharray: 4 4;
   stroke-width: 1;
+}
+
+.scatter-label-line {
+  stroke: rgba(75, 87, 93, 0.34);
+  stroke-width: 0.8;
+}
+
+.scatter-course-label {
+  fill: #34434a;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  paint-order: stroke;
+  font-size: 10px;
+  pointer-events: none;
 }
 
 .donut-layout {

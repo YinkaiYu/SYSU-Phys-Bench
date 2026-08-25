@@ -39,7 +39,7 @@
             <h3>最终成绩分布</h3>
             <div id="grade-distribution" class="chart chart-donut"></div>
           </article>
-          <article class="chart-card chart-card-full">
+          <article class="chart-card chart-card-wide">
             <h3>各学期绩点、排名与总绩点</h3>
             <div id="gpa-trend" class="chart chart-line"></div>
           </article>
@@ -47,9 +47,13 @@
             <h3>各类别学分加权平均绩点</h3>
             <div id="category-gpa" class="chart"></div>
           </article>
-          <article class="chart-card chart-card-wide">
-            <h3>课程成绩与教学班排名百分位</h3>
+          <article id="score-rank-card" class="chart-card chart-card-full">
+            <div class="chart-card-heading">
+              <h3>课程成绩与教学班排名百分位</h3>
+              <button id="scatter-fullscreen" class="fullscreen-button" type="button" aria-label="全屏查看课程成绩与教学班排名百分位">全屏</button>
+            </div>
             <div id="score-rank-scatter" class="chart chart-scatter"></div>
+            <div id="chart-tooltip" class="chart-tooltip" role="status" aria-hidden="true"></div>
           </article>
         </div>
       </section>
@@ -111,7 +115,6 @@
       <div class="shell">余荫铠</div>
     </footer>
 
-    <div id="chart-tooltip" class="chart-tooltip" role="status" aria-hidden="true"></div>
     <script src="data.js"></script>
     <script src="app.js"></script>
   </body>
