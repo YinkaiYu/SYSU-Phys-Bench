@@ -497,7 +497,7 @@
     const maxRank = 100;
     const logMin = Math.log10(minRank);
     const logMax = Math.log10(maxRank);
-    const x = (rank) => margin.left + ((Math.log10(rank) - logMin) / (logMax - logMin)) * plotWidth;
+    const x = (rank) => margin.left + ((logMax - Math.log10(rank)) / (logMax - logMin)) * plotWidth;
     const y = (score) => margin.top + ((maxScore - score) / (maxScore - minScore)) * plotHeight;
     const sortedRanks = data.map((row) => row.rankPercentile).sort((a, b) => a - b);
     const sortedScores = data.map((row) => row.最终成绩).sort((a, b) => a - b);
@@ -533,10 +533,8 @@
     svg.append(svgElement("text", { x: margin.left, y: margin.top - 10, class: "tick-label" }, "最终成绩"));
 
     if (width >= 620) {
-      svg.append(svgElement("text", { x: margin.left + 8, y: margin.top + 16, class: "quadrant-label" }, "成绩较高 · 百分位较小"));
-      svg.append(svgElement("text", { x: width - margin.right - 8, y: margin.top + 16, "text-anchor": "end", class: "quadrant-label" }, "成绩较高 · 百分位较大"));
-      svg.append(svgElement("text", { x: margin.left + 8, y: height - margin.bottom - 9, class: "quadrant-label" }, "成绩较低 · 百分位较小"));
-      svg.append(svgElement("text", { x: width - margin.right - 8, y: height - margin.bottom - 9, "text-anchor": "end", class: "quadrant-label" }, "成绩较低 · 百分位较大"));
+      svg.append(svgElement("text", { x: margin.left + 8, y: margin.top + 16, class: "quadrant-label" }, "排名较低 · 成绩较高（课程给分高）"));
+      svg.append(svgElement("text", { x: width - margin.right - 8, y: height - margin.bottom - 9, "text-anchor": "end", class: "quadrant-label" }, "排名较高 · 成绩较低（课程给分低）"));
     }
 
     const legend = svgElement("g", { transform: `translate(${margin.left},20)` });
