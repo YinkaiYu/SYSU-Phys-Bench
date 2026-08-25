@@ -511,7 +511,9 @@ tr:last-child td {
 }
 
 #score-rank-card:fullscreen .scatter-download,
-#score-rank-card.is-expanded .scatter-download {
+#score-rank-card.is-expanded .scatter-download,
+#yu-rank-card:fullscreen .scatter-download,
+#yu-rank-card.is-expanded .scatter-download {
   display: inline-block;
 }
 
@@ -542,7 +544,9 @@ tr:last-child td {
 }
 
 #score-rank-card:fullscreen,
-#score-rank-card.is-expanded {
+#score-rank-card.is-expanded,
+#yu-rank-card:fullscreen,
+#yu-rank-card.is-expanded {
   padding: 24px 28px;
   border: 0;
   border-radius: 0;
@@ -550,11 +554,13 @@ tr:last-child td {
   box-shadow: none;
 }
 
-#score-rank-card:fullscreen {
+#score-rank-card:fullscreen,
+#yu-rank-card:fullscreen {
   overflow: auto;
 }
 
-#score-rank-card.is-expanded {
+#score-rank-card.is-expanded,
+#yu-rank-card.is-expanded {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -566,13 +572,17 @@ body.chart-expanded {
 }
 
 #score-rank-card:fullscreen .chart-scatter,
-#score-rank-card.is-expanded .chart-scatter {
-  height: calc(100vh - 250px);
-  min-height: 480px;
+#score-rank-card.is-expanded .chart-scatter,
+#yu-rank-card:fullscreen .chart-scatter,
+#yu-rank-card.is-expanded .chart-scatter {
+  height: calc(100vh - 84px);
+  min-height: 560px;
 }
 
 #score-rank-card:fullscreen .chart-scatter svg,
-#score-rank-card.is-expanded .chart-scatter svg {
+#score-rank-card.is-expanded .chart-scatter svg,
+#yu-rank-card:fullscreen .chart-scatter svg,
+#yu-rank-card.is-expanded .chart-scatter svg {
   height: 100%;
 }
 
@@ -990,10 +1000,6 @@ body.chart-expanded {
   padding: 0;
 }
 
-.detail-frame .yu-index-header {
-  background: #e9f1f3;
-}
-
 .sort-button {
   display: flex;
   width: 100%;
@@ -1078,7 +1084,6 @@ body.chart-expanded {
 
 .detail-frame tbody tr .yu-index-cell {
   min-width: 132px;
-  background: #eef4f5;
   color: #173846;
 }
 

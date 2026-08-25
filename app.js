@@ -28,6 +28,8 @@
   const categorySymbols = { 公必: "circle", 专必: "square", 公选: "diamond", 专选: "triangle" };
   const scatterDefaultTitle = "课程绩点与排名分布图";
   const scatterExpandedTitle = "SYSU-Phys-Bench: 课程绩点与排名分布图";
+  const yuScatterDefaultTitle = "Yu Index 与排名分布图";
+  const yuScatterExpandedTitle = "SYSU-Phys-Bench: Yu Index 与排名分布图";
   const yearOrder = ["大一", "大二", "大三", "大四"];
   const termOrder = ["第一学期", "第二学期"];
   const semesterOrder = yearOrder.flatMap((year) => termOrder.map((term) => `${year}${term}`));
@@ -389,8 +391,8 @@
     });
   }
 
-  function showTooltip(event, title, lines) {
-    const tooltip = $("#chart-tooltip");
+  function showTooltip(event, title, lines, tooltipSelector = "#chart-tooltip") {
+    const tooltip = $(tooltipSelector);
     tooltip.replaceChildren();
     const strong = document.createElement("strong");
     strong.textContent = title;
@@ -406,29 +408,37 @@
     tooltip.setAttribute("aria-hidden", "false");
   }
 
-  function hideTooltip() {
-    const tooltip = $("#chart-tooltip");
+  function hideTooltip(tooltipSelector = "#chart-tooltip") {
+    const tooltip = $(tooltipSelector);
     tooltip.classList.remove("is-visible");
     tooltip.setAttribute("aria-hidden", "true");
   }
 
-  function bindChartTooltip(target, title, lines) {
-    const show = (event) => showTooltip(event, title, lines);
+  function hideAllTooltips() {
+    document.querySelectorAll(".chart-tooltip").forEach((tooltip) => {
+      tooltip.classList.remove("is-visible");
+      tooltip.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  function bindChartTooltip(target, title, lines, tooltipSelector = "#chart-tooltip") {
+    const show = (event) => showTooltip(event, title, lines, tooltipSelector);
     target.setAttribute("data-chart-tooltip", "");
 
     target.addEventListener("pointermove", (event) => {
       if (event.pointerType !== "touch" && !pinnedTooltipTarget) show(event);
     });
     target.addEventListener("pointerleave", (event) => {
-      if (event.pointerType !== "touch" && pinnedTooltipTarget !== target) hideTooltip();
+      if (event.pointerType !== "touch" && pinnedTooltipTarget !== target) hideTooltip(tooltipSelector);
     });
     target.addEventListener("click", (event) => {
       event.stopPropagation();
       if (pinnedTooltipTarget === target) {
         pinnedTooltipTarget = null;
-        hideTooltip();
+        hideTooltip(tooltipSelector);
         return;
       }
+      hideAllTooltips();
       pinnedTooltipTarget = target;
       show(event);
     });
@@ -710,6 +720,11 @@
     return document.fullscreenElement === card || card.classList.contains("is-expanded");
   }
 
+  function isYuScatterExpanded() {
+    const card = $("#yu-rank-card");
+    return document.fullscreenElement === card || card.classList.contains("is-expanded");
+  }
+
   function appendScatterCourseLabels(svg, data, x, y, valueAccessor, margin, width, height, compact = false) {
     const bounds = {
       left: margin.left + 3,
@@ -851,7 +866,7 @@
     });
     svg.append(svgElement("line", { x1: medianX, x2: medianX, y1: margin.top, y2: height - margin.bottom, class: "quadrant-line" }));
     svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: medianY, y2: medianY, class: "quadrant-line" }));
-    svg.append(svgElement("text", { x: width - margin.right, y: height - 3, "text-anchor": "end", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
+    svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - 3, "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
     svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "绩点"));
 
@@ -907,8 +922,9 @@
       return;
     }
 
+    const expanded = isYuScatterExpanded();
     const width = Math.max(360, container.clientWidth || 720);
-    const height = width < 520 ? 330 : 390;
+    const height = expanded ? Math.max(560, container.clientHeight || window.innerHeight - 84) : width < 520 ? 330 : 390;
     const margin = { top: 58, right: 20, bottom: 52, left: 64 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
@@ -930,7 +946,7 @@
       svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: yPos, y2: yPos, class: "grid-line" }));
       svg.append(svgElement("text", { x: margin.left - 8, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, value));
     });
-    svg.append(svgElement("text", { x: width - margin.right, y: height - 3, "text-anchor": "end", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
+    svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - 3, "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
     svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index"));
 
@@ -944,7 +960,7 @@
     });
     svg.append(legend);
 
-    appendScatterCourseLabels(svg, data, x, y, (row) => row["Yu Index"], margin, width, height, true);
+    appendScatterCourseLabels(svg, data, x, y, (row) => row["Yu Index"], margin, width, height, !expanded);
     data.forEach((row) => {
       const marker = scatterSymbol(row.类别, x(row.rankPercentile), y(row["Yu Index"]), 3 + Math.sqrt(row.学分) * 1.15, {
         stroke: "#ffffff",
@@ -959,23 +975,23 @@
         `教学班排名 ${row.教学班排名}`,
         `排名百分位 ${row.rankPercentile.toFixed(2)}%`,
         `${row.学分} 学分 · ${row.类别}`,
-      ]);
+      ], "#yu-chart-tooltip");
       svg.append(marker);
     });
     container.append(svg);
   }
 
-  function setupScatterFullscreen() {
-    const card = $("#score-rank-card");
-    const title = $("#score-rank-title");
-    const button = $("#scatter-fullscreen");
-    const downloadButton = $("#scatter-download");
+  function setupChartFullscreen({ cardSelector, titleSelector, buttonSelector, downloadSelector, chartSelector, defaultTitle, expandedTitle, ariaTitle, renderChart, isExpanded }) {
+    const card = $(cardSelector);
+    const title = $(titleSelector);
+    const button = $(buttonSelector);
+    const downloadButton = $(downloadSelector);
     let preparedPngUrl = "";
 
     const preparePng = async () => {
       downloadButton.setAttribute("aria-disabled", "true");
       downloadButton.textContent = "生成中";
-      const source = $("#score-rank-scatter svg");
+      const source = $(`${chartSelector} svg`);
       if (!source) {
         preparedPngUrl = "";
         downloadButton.removeAttribute("href");
@@ -1007,7 +1023,7 @@
         .export-title { fill: #1f3139; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
       `);
       clone.append(style);
-      clone.append(svgElement("text", { x: viewBox.width / 2, y: 36, "text-anchor": "middle", class: "export-title" }, scatterExpandedTitle));
+      clone.append(svgElement("text", { x: viewBox.width / 2, y: 36, "text-anchor": "middle", class: "export-title" }, expandedTitle));
       clone.append(chartGroup);
 
       const svgBlob = new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" });
@@ -1032,11 +1048,11 @@
     };
 
     const update = () => {
-      const expanded = isScatterExpanded();
-      title.textContent = expanded ? scatterExpandedTitle : scatterDefaultTitle;
+      const expanded = isExpanded();
+      title.textContent = expanded ? expandedTitle : defaultTitle;
       button.textContent = expanded ? "退出全屏" : "全屏";
-      button.setAttribute("aria-label", expanded ? "退出课程绩点与排名分布图全屏" : "全屏查看课程绩点与排名分布图");
-      renderScatter();
+      button.setAttribute("aria-label", expanded ? `退出${ariaTitle}全屏` : `全屏查看${ariaTitle}`);
+      renderChart();
       if (expanded) {
         preparePng();
       } else {
@@ -1073,13 +1089,40 @@
 
     document.addEventListener("fullscreenchange", update);
     document.addEventListener("scatterfilterschange", () => {
-      if (isScatterExpanded()) preparePng();
+      if (isExpanded()) preparePng();
+    });
+  }
+
+  function setupScatterFullscreen() {
+    setupChartFullscreen({
+      cardSelector: "#score-rank-card",
+      titleSelector: "#score-rank-title",
+      buttonSelector: "#scatter-fullscreen",
+      downloadSelector: "#scatter-download",
+      chartSelector: "#score-rank-scatter",
+      defaultTitle: scatterDefaultTitle,
+      expandedTitle: scatterExpandedTitle,
+      ariaTitle: "课程绩点与排名分布图",
+      renderChart: renderScatter,
+      isExpanded: isScatterExpanded,
+    });
+    setupChartFullscreen({
+      cardSelector: "#yu-rank-card",
+      titleSelector: "#yu-rank-title",
+      buttonSelector: "#yu-scatter-fullscreen",
+      downloadSelector: "#yu-scatter-download",
+      chartSelector: "#yu-rank-scatter",
+      defaultTitle: yuScatterDefaultTitle,
+      expandedTitle: yuScatterExpandedTitle,
+      ariaTitle: "Yu Index 与排名分布图",
+      renderChart: renderYuRankScatter,
+      isExpanded: isYuScatterExpanded,
     });
   }
 
   function renderCharts() {
     pinnedTooltipTarget = null;
-    hideTooltip();
+    hideAllTooltips();
     renderCreditDonut();
     renderGradeDistribution();
     renderTrendCharts();
@@ -1100,7 +1143,7 @@
   document.addEventListener("pointerdown", (event) => {
     if (pinnedTooltipTarget && !event.target.closest("[data-chart-tooltip]")) {
       pinnedTooltipTarget = null;
-      hideTooltip();
+      hideAllTooltips();
     }
   });
 
