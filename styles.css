@@ -507,15 +507,15 @@ tr:last-child td {
 }
 
 .credit-1 {
-  background: rgba(116, 128, 97, 0.04);
+  background: rgba(56, 107, 129, 0.04);
 }
 
 .credit-2 {
-  background: rgba(180, 138, 58, 0.14);
+  background: rgba(56, 107, 129, 0.1);
 }
 
 .credit-3 {
-  background: rgba(56, 107, 129, 0.24);
+  background: rgba(56, 107, 129, 0.22);
 }
 
 .detail-frame {
@@ -573,22 +573,37 @@ tr:last-child td {
 }
 
 .detail-frame tbody tr {
-  --credit-bg: rgba(116, 128, 97, 0.025);
-  --credit-line: rgba(116, 128, 97, 0.25);
+  --credit-bg: rgba(56, 107, 129, 0.025);
+  --credit-line: rgba(56, 107, 129, 0.18);
+  --credit-ink: #7f898e;
+  --credit-course-ink: #65757c;
 }
 
 .detail-frame tbody tr[data-credit-level="2"] {
-  --credit-bg: rgba(180, 138, 58, 0.1);
-  --credit-line: rgba(180, 138, 58, 0.68);
+  --credit-bg: rgba(56, 107, 129, 0.09);
+  --credit-line: rgba(56, 107, 129, 0.45);
+  --credit-ink: #526169;
+  --credit-course-ink: #3f555f;
 }
 
 .detail-frame tbody tr[data-credit-level="3"] {
   --credit-bg: rgba(56, 107, 129, 0.2);
   --credit-line: rgba(36, 78, 97, 0.9);
+  --credit-ink: #21363f;
+  --credit-course-ink: #173846;
 }
 
 .detail-frame tbody tr td {
   background: linear-gradient(90deg, var(--credit-bg), var(--credit-bg));
+  color: var(--credit-ink);
+}
+
+.detail-frame tbody tr .course-cell {
+  color: var(--credit-course-ink);
+}
+
+.detail-frame tbody tr[data-credit-level="3"] .course-cell {
+  font-weight: 700;
 }
 
 .detail-frame tbody tr td:first-child {
