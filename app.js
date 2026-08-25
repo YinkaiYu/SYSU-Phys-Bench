@@ -37,6 +37,7 @@
   let sortState = { key: "index", direction: "asc" };
   let pinnedTooltipTarget = null;
   const scatterEligibleRows = rows.filter((row) => Number.isFinite(row.绩点) && Number.isFinite(row["Yu Index"]));
+  const yuIndexBenchmark = medianValue(scatterEligibleRows.map((row) => row["Yu Index"]));
   const scatterSelected = new Set(scatterEligibleRows.map((row) => row.index));
   const detailMultiFilters = {};
   const scatterMultiFilters = {};
@@ -118,6 +119,59 @@
     if (!Number.isFinite(gpa) || !Number.isFinite(rank) || !Number.isFinite(total) || rank < 1 || rank > total) return NaN;
     const plottingPosition = (total - rank + 5 / 8) / (total + 1 / 4);
     return gpa - inverseStandardNormal(plottingPosition) / 3;
+  }
+
+  function medianValue(values) {
+    const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+    if (!sorted.length) return NaN;
+    const middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  }
+
+  function setupYuCalculator() {
+    const form = $("#yu-calculator-form");
+    const gpaInput = $("#yu-calculator-gpa");
+    const rankInput = $("#yu-calculator-rank");
+    const totalInput = $("#yu-calculator-total");
+    const output = $("#yu-calculator-result");
+    const inputs = [gpaInput, rankInput, totalInput];
+    const resetOutput = () => {
+      const label = document.createElement("span");
+      label.textContent = "Yu Index";
+      const placeholder = document.createElement("strong");
+      placeholder.textContent = "—";
+      output.replaceChildren(label, placeholder);
+    };
+
+    inputs.forEach((input) => input.addEventListener("input", resetOutput));
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const gpa = Number(gpaInput.value);
+      const rank = Number(rankInput.value);
+      const total = Number(totalInput.value);
+      const valid = gpaInput.value !== "" && rankInput.value !== "" && totalInput.value !== ""
+        && gpa >= 0 && gpa <= 5 && Number.isInteger(rank) && Number.isInteger(total)
+        && total >= 2 && rank >= 1 && rank <= total;
+
+      output.replaceChildren();
+      if (!valid) {
+        const message = document.createElement("span");
+        message.className = "yu-calculator-error";
+        message.textContent = "请输入有效的绩点、名次和人数";
+        output.append(message);
+        return;
+      }
+
+      const value = computeYuIndex(gpa, `${rank}/${total}`);
+      const label = document.createElement("span");
+      label.textContent = "Yu Index";
+      const result = document.createElement("strong");
+      result.textContent = value.toFixed(2);
+      const interpretation = document.createElement("small");
+      interpretation.textContent = value >= yuIndexBenchmark ? "给分较友好" : "给分较严格";
+      output.append(label, result, interpretation);
+    });
   }
 
   function weightedAverage(items, valueAccessor, weightAccessor = (item) => item.学分) {
@@ -872,9 +926,8 @@
     const y = (score) => margin.top + ((maxScore - score) / (maxScore - minScore)) * plotHeight;
     const sortedRanks = data.map((row) => row.rankPercentile).sort((a, b) => a - b);
     const sortedScores = data.map((row) => row.绩点).sort((a, b) => a - b);
-    const median = (values) => values.length % 2 ? values[(values.length - 1) / 2] : (values[values.length / 2 - 1] + values[values.length / 2]) / 2;
-    const rankMedian = median(sortedRanks);
-    const scoreMedian = median(sortedScores);
+    const rankMedian = medianValue(sortedRanks);
+    const scoreMedian = medianValue(sortedScores);
     const medianX = x(rankMedian);
     const medianY = y(scoreMedian);
     const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "横轴为对数刻度教学班排名百分位、纵轴为课程绩点的四象限散点图" });
@@ -984,7 +1037,13 @@
     });
     svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - 3, "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
-    svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index（估计平均绩点）"));
+    svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index"));
+
+    const benchmarkY = y(yuIndexBenchmark);
+    svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: benchmarkY, y2: benchmarkY, class: "yu-benchmark-line" }));
+    svg.append(svgElement("text", { x: width - margin.right - 8, y: benchmarkY - 7, "text-anchor": "end", class: "yu-benchmark-label" }, "给分较友好"));
+    svg.append(svgElement("text", { x: width - margin.right - 8, y: benchmarkY + 15, "text-anchor": "end", class: "yu-benchmark-label" }, "给分较严格"));
+    svg.append(svgElement("text", { x: margin.left + 7, y: benchmarkY - 7, class: "yu-benchmark-value" }, `数据集中位数 ${yuIndexBenchmark.toFixed(2)}`));
 
     const legendStep = 70;
     const legendWidth = legendStep * Object.keys(categoryColors).length;
@@ -1168,6 +1227,7 @@
   }
 
   renderOverviewBenchmarks();
+  setupYuCalculator();
   renderDetailsHead();
   setupFilters();
   setupScatterFilters();
