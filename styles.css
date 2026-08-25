@@ -122,6 +122,79 @@ nav a:focus-visible {
   margin: 22px 0;
 }
 
+.methodology-report-entry {
+  margin-top: 18px !important;
+}
+
+.methodology-report-entry a,
+.report-back-link {
+  color: var(--blue-dark);
+  font-weight: 650;
+  text-underline-offset: 0.2em;
+}
+
+.report-article {
+  padding-bottom: 72px;
+}
+
+.report-article h2 {
+  margin-top: 56px;
+}
+
+.report-article h3 {
+  margin-top: 32px;
+  font-size: 19px;
+}
+
+.report-article p,
+.report-article li {
+  color: #35464e;
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.report-article p {
+  margin: 18px 0 0;
+}
+
+.report-article ul,
+.report-article ol {
+  margin: 16px 0 0;
+  padding-left: 24px;
+}
+
+.report-article .yu-index-formula {
+  margin: 24px 0;
+}
+
+.report-table {
+  margin-top: 18px;
+  box-shadow: none;
+}
+
+.report-table table {
+  margin: 0;
+}
+
+.report-article th {
+  background: #f2f6f6;
+}
+
+.report-article a {
+  color: var(--blue-dark);
+  text-underline-offset: 0.2em;
+}
+
+.report-lead {
+  margin-top: 28px !important;
+  color: var(--ink) !important;
+  font-size: 18px !important;
+}
+
+.report-reference-list li + li {
+  margin-top: 10px;
+}
+
 h1,
 h2,
 h3 {

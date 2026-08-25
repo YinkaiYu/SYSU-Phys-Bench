@@ -1,6 +1,9 @@
-# 成绩总览
+# SYSU-Phys-Bench
 
 静态网页，无构建步骤。
+
+- `index.html`：基准测试主页
+- `yu-index.html`：Yu Index 技术报告
 
 ## 本地预览
 
@@ -20,4 +23,3 @@ python scripts/extract_data.py
 ```
 
 脚本会重新生成 `data.js`。
-

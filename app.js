@@ -15,7 +15,7 @@
     最终成绩: row[6],
     绩点: Number(row[7]),
     教学班排名: row[8],
-    "Yu Index": Math.sqrt((Number(row[7]) / 5) * 100 * parseRank(row[8]).percentile),
+    "Yu Index": computeYuIndex(Number(row[7]), row[8]),
   }));
 
   const gradePalette = ["#244e61", "#386b81", "#5f8798", "#8da8b3", "#c5d2d7"];
@@ -36,7 +36,7 @@
 
   let sortState = { key: "index", direction: "asc" };
   let pinnedTooltipTarget = null;
-  const scatterEligibleRows = rows.filter((row) => Number.isFinite(row.绩点));
+  const scatterEligibleRows = rows.filter((row) => Number.isFinite(row.绩点) && Number.isFinite(row["Yu Index"]));
   const scatterSelected = new Set(scatterEligibleRows.map((row) => row.index));
   const detailMultiFilters = {};
   const scatterMultiFilters = {};
@@ -84,6 +84,40 @@
     const rank = Number(match[1]);
     const total = Number(match[2]);
     return { rank, total, percentile: (rank / total) * 100 };
+  }
+
+  function inverseStandardNormal(probability) {
+    if (!(probability > 0 && probability < 1)) return NaN;
+    const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239];
+    const b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572];
+    const c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+    const d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416];
+    const lower = 0.02425;
+    const upper = 1 - lower;
+    let q;
+    let r;
+
+    if (probability < lower) {
+      q = Math.sqrt(-2 * Math.log(probability));
+      return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5])
+        / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+    }
+    if (probability > upper) {
+      q = Math.sqrt(-2 * Math.log(1 - probability));
+      return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5])
+        / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+    }
+    q = probability - 0.5;
+    r = q * q;
+    return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q
+      / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+  }
+
+  function computeYuIndex(gpa, rankValue) {
+    const { rank, total } = parseRank(rankValue);
+    if (!Number.isFinite(gpa) || !Number.isFinite(rank) || !Number.isFinite(total) || rank < 1 || rank > total) return NaN;
+    const plottingPosition = (total - rank + 5 / 8) / (total + 1 / 4);
+    return gpa - inverseStandardNormal(plottingPosition) / 3;
   }
 
   function weightedAverage(items, valueAccessor, weightAccessor = (item) => item.学分) {
@@ -376,8 +410,8 @@
           td.className = "numeric yu-index-cell";
           const score = document.createElement("div");
           score.className = "yu-index-score";
-          score.style.setProperty("--yu-score", `${Math.max(0, Math.min(100, value))}%`);
-          score.innerHTML = `<strong>${value.toFixed(1)}</strong><i aria-hidden="true"></i>`;
+          score.style.setProperty("--yu-score", `${Math.max(0, Math.min(100, (value / 5) * 100))}%`);
+          score.innerHTML = `<strong>${value.toFixed(2)}</strong><i aria-hidden="true"></i>`;
           td.append(score);
         } else {
           td.textContent = value ?? "";
@@ -899,7 +933,7 @@
         `绩点 ${row.绩点.toFixed(1)}`,
         `教学班排名 ${row.教学班排名}`,
         `排名百分位 ${row.rankPercentile.toFixed(2)}%`,
-        `Yu Index ${row["Yu Index"].toFixed(1)}`,
+        `Yu Index ${row["Yu Index"].toFixed(2)}`,
         `${row.学分} 学分 · ${row.类别}`,
       ];
       bindChartTooltip(marker, row.课程, tooltipLines);
@@ -933,22 +967,24 @@
     const logMin = Math.log10(minRank);
     const logMax = Math.log10(maxRank);
     const x = (rank) => margin.left + ((logMax - Math.log10(rank)) / (logMax - logMin)) * plotWidth;
-    const y = (value) => margin.top + ((100 - value) / 100) * plotHeight;
-    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "横轴为对数刻度教学班排名百分位、纵轴为 Yu Index 的课程散点图" });
+    const minYuIndex = 2.5;
+    const maxYuIndex = 5;
+    const y = (value) => margin.top + ((maxYuIndex - value) / (maxYuIndex - minYuIndex)) * plotHeight;
+    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "横轴为对数刻度教学班排名百分位、纵轴为 Yu Index 估计平均绩点的课程散点图" });
 
     [1, 2, 5, 10, 20, 50, 100].forEach((value) => {
       const xPos = x(value);
       svg.append(svgElement("line", { x1: xPos, x2: xPos, y1: margin.top, y2: height - margin.bottom, class: "grid-line" }));
       svg.append(svgElement("text", { x: xPos, y: height - 19, "text-anchor": "middle", class: "tick-label" }, `${value}%`));
     });
-    [0, 20, 40, 60, 80, 100].forEach((value) => {
+    [2.5, 3, 3.5, 4, 4.5, 5].forEach((value) => {
       const yPos = y(value);
       svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: yPos, y2: yPos, class: "grid-line" }));
-      svg.append(svgElement("text", { x: margin.left - 8, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, value));
+      svg.append(svgElement("text", { x: margin.left - 8, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, value.toFixed(1)));
     });
     svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - 3, "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
-    svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index"));
+    svg.append(svgElement("text", { x: 16, y: yAxisCenter, transform: `rotate(-90 16 ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index（估计平均绩点）"));
 
     const legendStep = 70;
     const legendWidth = legendStep * Object.keys(categoryColors).length;
@@ -970,7 +1006,7 @@
       });
       bindChartTooltip(marker, row.课程, [
         ...(row.教师 ? [`教师 ${truncateText(row.教师)}`] : []),
-        `Yu Index ${row["Yu Index"].toFixed(1)}`,
+        `Yu Index ${row["Yu Index"].toFixed(2)}`,
         `绩点 ${row.绩点.toFixed(1)}`,
         `教学班排名 ${row.教学班排名}`,
         `排名百分位 ${row.rankPercentile.toFixed(2)}%`,
