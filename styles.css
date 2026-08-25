@@ -102,10 +102,6 @@ nav a:focus-visible {
   padding-top: 72px;
 }
 
-.scorecards-section {
-  padding-top: 18px;
-}
-
 .methodology-body {
   width: 100%;
   margin-top: 24px;
@@ -423,6 +419,10 @@ tr:last-child td {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 0;
+}
+
+.dataset-benchmarks {
+  margin-top: 28px;
 }
 
 .overview-benchmark {
