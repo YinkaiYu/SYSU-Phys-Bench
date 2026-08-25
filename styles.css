@@ -76,6 +76,7 @@ select {
 
 nav {
   display: flex;
+  align-items: center;
   gap: 24px;
 }
 
@@ -88,6 +89,25 @@ nav a {
 nav a:hover,
 nav a:focus-visible {
   color: var(--blue-dark);
+}
+
+nav .personal-home-link {
+  padding: 7px 12px;
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  color: var(--blue-dark);
+  background: var(--surface);
+  font-weight: 650;
+  line-height: 1.2;
+  box-shadow: 0 4px 14px rgba(36, 78, 97, 0.08);
+}
+
+nav .personal-home-link:hover,
+nav .personal-home-link:focus-visible {
+  border-color: var(--blue-dark);
+  color: #ffffff;
+  background: var(--blue-dark);
+  outline: none;
 }
 
 .section {
@@ -1548,7 +1568,7 @@ body.chart-expanded {
     font-size: 14px;
   }
 
-  nav a:first-child {
+  .main-navigation a:not(.personal-home-link) {
     display: none;
   }
 
