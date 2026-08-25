@@ -121,38 +121,6 @@ h3 {
   letter-spacing: -0.01em;
 }
 
-.metric-strip {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 32px;
-}
-
-.metric-card {
-  min-height: 126px;
-  padding: 20px 22px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.metric-label {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.metric-value {
-  display: block;
-  margin-top: 12px;
-  color: var(--blue-dark);
-  font-family: var(--mono);
-  font-size: 30px;
-  font-weight: 650;
-  line-height: 1;
-  letter-spacing: -0.045em;
-}
-
 .table-frame {
   overflow: auto;
   border: 1px solid var(--line);
@@ -229,6 +197,14 @@ tr:last-child td {
   grid-column: span 7;
 }
 
+.chart-card-half {
+  grid-column: span 6;
+}
+
+.chart-card-full {
+  grid-column: span 12;
+}
+
 .chart {
   min-height: 290px;
   margin-top: 18px;
@@ -275,6 +251,23 @@ tr:last-child td {
   stroke-width: 2.25;
 }
 
+.gpa-line,
+.rank-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.35;
+}
+
+.gpa-line {
+  stroke: var(--blue);
+}
+
+.rank-line {
+  stroke: var(--orange);
+  stroke-dasharray: 7 4;
+}
+
 .line-area {
   fill: rgba(56, 107, 129, 0.09);
 }
@@ -289,6 +282,57 @@ tr:last-child td {
 .data-point:focus {
   fill: var(--blue-dark);
   outline: none;
+}
+
+.rank-point {
+  fill: var(--surface);
+  stroke: var(--orange);
+  stroke-width: 2;
+}
+
+.rank-point:hover,
+.rank-point:focus {
+  fill: var(--orange);
+  outline: none;
+}
+
+.chart-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 2px 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chart-legend-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.line-key {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 2px solid var(--blue);
+}
+
+.line-key.rank {
+  border-top-color: var(--orange);
+  border-top-style: dashed;
+}
+
+.quadrant-label {
+  fill: #7b858a;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+.quadrant-line {
+  stroke: #7d878c;
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
 }
 
 .donut-layout {
@@ -463,23 +507,15 @@ tr:last-child td {
 }
 
 .credit-1 {
-  background: rgba(56, 107, 129, 0.04);
+  background: rgba(116, 128, 97, 0.04);
 }
 
 .credit-2 {
-  background: rgba(56, 107, 129, 0.08);
+  background: rgba(180, 138, 58, 0.14);
 }
 
 .credit-3 {
-  background: rgba(56, 107, 129, 0.13);
-}
-
-.credit-4 {
-  background: rgba(56, 107, 129, 0.19);
-}
-
-.credit-5 {
-  background: rgba(56, 107, 129, 0.27);
+  background: rgba(56, 107, 129, 0.24);
 }
 
 .detail-frame {
@@ -537,28 +573,18 @@ tr:last-child td {
 }
 
 .detail-frame tbody tr {
-  --credit-bg: rgba(56, 107, 129, 0.035);
-  --credit-line: rgba(56, 107, 129, 0.22);
+  --credit-bg: rgba(116, 128, 97, 0.025);
+  --credit-line: rgba(116, 128, 97, 0.25);
 }
 
 .detail-frame tbody tr[data-credit-level="2"] {
-  --credit-bg: rgba(56, 107, 129, 0.065);
-  --credit-line: rgba(56, 107, 129, 0.32);
+  --credit-bg: rgba(180, 138, 58, 0.1);
+  --credit-line: rgba(180, 138, 58, 0.68);
 }
 
 .detail-frame tbody tr[data-credit-level="3"] {
-  --credit-bg: rgba(56, 107, 129, 0.105);
-  --credit-line: rgba(56, 107, 129, 0.46);
-}
-
-.detail-frame tbody tr[data-credit-level="4"] {
-  --credit-bg: rgba(56, 107, 129, 0.15);
-  --credit-line: rgba(56, 107, 129, 0.62);
-}
-
-.detail-frame tbody tr[data-credit-level="5"] {
-  --credit-bg: rgba(56, 107, 129, 0.215);
-  --credit-line: rgba(36, 78, 97, 0.82);
+  --credit-bg: rgba(56, 107, 129, 0.2);
+  --credit-line: rgba(36, 78, 97, 0.9);
 }
 
 .detail-frame tbody tr td {
@@ -566,7 +592,7 @@ tr:last-child td {
 }
 
 .detail-frame tbody tr td:first-child {
-  border-left: 4px solid var(--credit-line);
+  border-left: 6px solid var(--credit-line);
 }
 
 .detail-frame tbody tr:hover td {
@@ -632,12 +658,9 @@ tr:last-child td {
 }
 
 @media (max-width: 980px) {
-  .metric-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .chart-card-small,
-  .chart-card-wide {
+  .chart-card-wide,
+  .chart-card-half {
     grid-column: span 12;
   }
 
@@ -670,14 +693,6 @@ tr:last-child td {
   .section,
   .section-first {
     padding-top: 48px;
-  }
-
-  .metric-strip {
-    grid-template-columns: 1fr;
-  }
-
-  .metric-card {
-    min-height: 108px;
   }
 
   .chart-grid {

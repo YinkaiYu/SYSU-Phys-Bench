@@ -28,7 +28,6 @@
   const yearOrder = ["大一", "大二", "大三", "大四"];
   const termOrder = ["第一学期", "第二学期"];
   const semesterOrder = yearOrder.flatMap((year) => termOrder.map((term) => `${year}${term}`));
-  const numberFormatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 4 });
 
   let sortState = { key: "index", direction: "asc" };
 
@@ -61,32 +60,6 @@
     const valid = items.filter((item) => Number.isFinite(valueAccessor(item)) && weightAccessor(item) > 0);
     const weight = valid.reduce((sum, item) => sum + weightAccessor(item), 0);
     return weight ? valid.reduce((sum, item) => sum + valueAccessor(item) * weightAccessor(item), 0) / weight : 0;
-  }
-
-  function renderMetrics() {
-    const overviewTotal = overviewRows.find((row) => row[0] === "合计");
-    const rankRow = overviewRows.at(-1);
-    const metrics = [
-      ["课程数", rows.length],
-      ["已获学分", overviewTotal[2]],
-      ["平均学分绩点", overviewTotal[3]],
-      ["必修、专选平均绩点", rankRow[1]],
-      ["排名 / 总人数", rankRow[3]],
-    ];
-
-    const strip = $("#metric-strip");
-    metrics.forEach(([label, value]) => {
-      const card = document.createElement("div");
-      card.className = "metric-card";
-      const labelElement = document.createElement("span");
-      labelElement.className = "metric-label";
-      labelElement.textContent = label;
-      const valueElement = document.createElement("strong");
-      valueElement.className = "metric-value";
-      valueElement.textContent = typeof value === "number" ? numberFormatter.format(value) : value;
-      card.append(labelElement, valueElement);
-      strip.append(card);
-    });
   }
 
   function renderOverviewTable() {
@@ -150,9 +123,7 @@
     if (!filter) return true;
     if (filter === "0-1") return credit <= 1;
     if (filter === "1.5-2") return credit >= 1.5 && credit <= 2;
-    if (filter === "3") return credit === 3;
-    if (filter === "4") return credit === 4;
-    if (filter === "5-6") return credit >= 5 && credit <= 6;
+    if (filter === "3-plus") return credit >= 3;
     return true;
   }
 
@@ -195,8 +166,6 @@
   }
 
   function creditLevel(credit) {
-    if (credit >= 5) return 5;
-    if (credit >= 4) return 4;
     if (credit >= 3) return 3;
     if (credit >= 1.5) return 2;
     return 1;
@@ -292,14 +261,9 @@
     tooltip.setAttribute("aria-hidden", "true");
   }
 
-  function renderDonut() {
-    const container = $("#credit-composition");
+  function renderDonutChart(containerSelector, sourceRows, centerLabel, unit, ariaLabel) {
+    const container = $(containerSelector);
     container.replaceChildren();
-    const sourceRows = overviewRows.slice(1, 5).map((row, index) => ({
-      label: row[0],
-      value: Number(row[2]),
-      color: palette[index],
-    }));
     const total = sourceRows.reduce((sum, item) => sum + item.value, 0);
     let cursor = 0;
     const stops = sourceRows.map((item) => {
@@ -316,10 +280,10 @@
     donut.className = "donut";
     donut.style.background = `conic-gradient(${stops.join(",")})`;
     donut.setAttribute("role", "img");
-    donut.setAttribute("aria-label", sourceRows.map((item) => `${item.label} ${item.value} 学分`).join("，"));
+    donut.setAttribute("aria-label", ariaLabel || sourceRows.map((item) => `${item.label} ${item.value}${unit}`).join("，"));
     const totalElement = document.createElement("div");
     totalElement.className = "donut-total";
-    totalElement.innerHTML = `<strong>${formatValue(total, 1)}</strong><span>学分</span>`;
+    totalElement.innerHTML = `<strong>${formatValue(total, 1)}</strong><span>${centerLabel}</span>`;
     wrap.append(donut, totalElement);
 
     const legend = document.createElement("div");
@@ -327,11 +291,20 @@
     sourceRows.forEach((item) => {
       const row = document.createElement("div");
       row.className = "legend-item";
-      row.innerHTML = `<i class="legend-swatch" style="background:${item.color}"></i><span>${item.label}</span><span class="legend-value">${formatValue(item.value, 1)}</span>`;
+      row.innerHTML = `<i class="legend-swatch" style="background:${item.color}"></i><span>${item.label}</span><span class="legend-value">${formatValue(item.value, 1)}${unit}</span>`;
       legend.append(row);
     });
     layout.append(wrap, legend);
     container.append(layout);
+  }
+
+  function renderCreditDonut() {
+    const sourceRows = overviewRows.slice(1, 5).map((row, index) => ({
+      label: row[0],
+      value: Number(row[2]),
+      color: palette[index],
+    }));
+    renderDonutChart("#credit-composition", sourceRows, "学分", "", "各类别学分构成");
   }
 
   function renderHorizontalBars(containerSelector, items, options = {}) {
@@ -385,8 +358,6 @@
       { label: "85–89.9", count: 0 },
       { label: "80–84.9", count: 0 },
       { label: "<80", count: 0 },
-      { label: "优秀", count: 0 },
-      { label: "良好", count: 0 },
     ];
     rows.forEach((row) => {
       const score = row.最终成绩;
@@ -396,26 +367,32 @@
         else if (score >= 85) bins[2].count += 1;
         else if (score >= 80) bins[3].count += 1;
         else bins[4].count += 1;
-      } else if (score === "优秀") bins[5].count += 1;
-      else if (score === "良好") bins[6].count += 1;
+      }
     });
-    renderHorizontalBars(
+    renderDonutChart(
       "#grade-distribution",
-      bins.map((bin, index) => ({ label: bin.label, value: bin.count, color: index < 5 ? "#386b81" : "#b48a3a", tooltip: [`${bin.count} 门课程`] })),
-      { left: 74, rowHeight: 34, suffix: "", valueDigits: 0, ariaLabel: "最终成绩分布" },
+      bins.map((bin, index) => ({ label: bin.label, value: bin.count, color: palette[index] })),
+      "数值成绩课程",
+      "",
+      bins.map((bin) => `${bin.label} ${bin.count} 门课程`).join("，"),
     );
   }
 
-  function semesterData(valueAccessor) {
+  function buildTrendData(cumulative = false) {
+    const accrued = [];
     return semesterOrder
-      .map((label) => {
-        const year = yearOrder.find((value) => label.startsWith(value));
-        const term = termOrder.find((value) => label.endsWith(value));
-        const items = rows.filter((row) => row.学年 === year && row.学期 === term);
+      .map((semester) => {
+        const year = yearOrder.find((value) => semester.startsWith(value));
+        const term = termOrder.find((value) => semester.endsWith(value));
+        const semesterRows = rows.filter((row) => row.学年 === year && row.学期 === term);
+        accrued.push(...semesterRows);
+        const items = cumulative ? accrued : semesterRows;
         return {
           label: `${year}${term === "第一学期" ? "上" : "下"}`,
           fullLabel: `${year} ${term}`,
-          value: weightedAverage(items, valueAccessor),
+          gpa: weightedAverage(items, (row) => row.绩点),
+          rank: weightedAverage(items, (row) => parseRank(row.教学班排名).rank),
+          percentile: weightedAverage(items, (row) => parseRank(row.教学班排名).percentile),
           credits: items.reduce((sum, row) => sum + row.学分, 0),
           count: items.length,
         };
@@ -423,66 +400,72 @@
       .filter((item) => item.count);
   }
 
-  function renderLineChart(containerSelector, data, options) {
+  function renderDualTrend(containerSelector, data, ariaLabel) {
     const container = $(containerSelector);
     container.replaceChildren();
-    const width = Math.max(360, container.clientWidth || 720);
-    const height = width < 520 ? 280 : 310;
-    const margin = { top: 26, right: 18, bottom: 48, left: 48 };
+    const legend = document.createElement("div");
+    legend.className = "chart-legend-row";
+    legend.innerHTML = `<span><i class="line-key"></i>绩点（左轴）</span><span><i class="line-key rank"></i>平均教学班名次（右轴）</span>`;
+    container.append(legend);
+
+    const width = Math.max(360, container.clientWidth || 900);
+    const height = width < 520 ? 300 : 330;
+    const margin = { top: 20, right: 54, bottom: 48, left: 52 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
-    const min = options.min;
-    const max = options.max;
+    const gpaMin = 3;
+    const gpaMax = 5;
+    const rankMax = Math.max(10, Math.ceil(Math.max(...data.map((item) => item.rank)) / 5) * 5);
     const x = (index) => margin.left + (index / Math.max(data.length - 1, 1)) * plotWidth;
-    const y = (value) => margin.top + ((max - value) / (max - min)) * plotHeight;
-    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": options.ariaLabel });
+    const gpaY = (value) => margin.top + ((gpaMax - value) / (gpaMax - gpaMin)) * plotHeight;
+    const rankY = (value) => margin.top + (value / rankMax) * plotHeight;
+    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": ariaLabel });
 
     for (let i = 0; i <= 4; i += 1) {
-      const value = min + ((max - min) * i) / 4;
-      const yPos = y(value);
+      const gpaValue = gpaMax - ((gpaMax - gpaMin) * i) / 4;
+      const rankValue = (rankMax * i) / 4;
+      const yPos = margin.top + (plotHeight * i) / 4;
       svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: yPos, y2: yPos, class: "grid-line" }));
-      svg.append(svgElement("text", { x: margin.left - 9, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, options.tickFormat(value)));
+      svg.append(svgElement("text", { x: margin.left - 9, y: yPos + 4, "text-anchor": "end", class: "tick-label", fill: "#386b81" }, gpaValue.toFixed(1)));
+      svg.append(svgElement("text", { x: width - margin.right + 9, y: yPos + 4, "text-anchor": "start", class: "tick-label", fill: "#c87542" }, formatValue(rankValue, 1)));
     }
 
-    const points = data.map((item, index) => [x(index), y(item.value)]);
-    const line = points.map(([xPos, yPos], index) => `${index ? "L" : "M"}${xPos},${yPos}`).join(" ");
-    const area = `${line} L${points.at(-1)[0]},${margin.top + plotHeight} L${points[0][0]},${margin.top + plotHeight} Z`;
-    svg.append(svgElement("path", { d: area, class: "line-area" }));
-    svg.append(svgElement("path", { d: line, class: "line-path" }));
+    const gpaPoints = data.map((item, index) => [x(index), gpaY(item.gpa)]);
+    const rankPoints = data.map((item, index) => [x(index), rankY(item.rank)]);
+    const pathFor = (points) => points.map(([xPos, yPos], index) => `${index ? "L" : "M"}${xPos},${yPos}`).join(" ");
+    svg.append(svgElement("path", { d: pathFor(gpaPoints), class: "gpa-line" }));
+    svg.append(svgElement("path", { d: pathFor(rankPoints), class: "rank-line" }));
 
     data.forEach((item, index) => {
-      const [xPos, yPos] = points[index];
-      svg.append(svgElement("text", { x: xPos, y: height - 17, "text-anchor": "middle", class: "tick-label" }, item.label));
-      svg.append(svgElement("text", { x: xPos, y: Math.max(yPos - 11, 12), "text-anchor": "middle", class: "data-label" }, options.valueFormat(item.value)));
-      const circle = svgElement("circle", { cx: xPos, cy: yPos, r: 4.5, class: "data-point", tabindex: 0 });
-      circle.addEventListener("pointermove", (event) => showTooltip(event, item.fullLabel, [options.tooltipValue(item.value), `${formatValue(item.credits, 1)} 学分`, `${item.count} 门课程`]));
-      circle.addEventListener("pointerleave", hideTooltip);
-      svg.append(circle);
+      const xPos = x(index);
+      const gpaYPos = gpaPoints[index][1];
+      const rankYPos = rankPoints[index][1];
+      const axisLabel = width < 520 ? item.label.replace("大", "") : item.label;
+      svg.append(svgElement("text", { x: xPos, y: height - 17, "text-anchor": "middle", class: "tick-label" }, axisLabel));
+      if (width >= 620) {
+        svg.append(svgElement("text", { x: xPos, y: Math.max(gpaYPos - 10, 11), "text-anchor": "middle", class: "data-label", fill: "#244e61" }, item.gpa.toFixed(3)));
+        svg.append(svgElement("text", { x: xPos, y: Math.min(rankYPos + 17, height - margin.bottom - 3), "text-anchor": "middle", class: "data-label", fill: "#a6532f" }, item.rank.toFixed(1)));
+      }
+      const tooltipLines = [
+        `绩点 ${item.gpa.toFixed(4)}`,
+        `平均教学班名次 ${item.rank.toFixed(2)}`,
+        `平均排名百分位 ${item.percentile.toFixed(2)}%`,
+        `${formatValue(item.credits, 1)} 学分 · ${item.count} 门课程`,
+      ];
+      const gpaPoint = svgElement("circle", { cx: xPos, cy: gpaYPos, r: 4.5, class: "data-point", tabindex: 0 });
+      const rankPoint = svgElement("circle", { cx: xPos, cy: rankYPos, r: 4.5, class: "rank-point", tabindex: 0 });
+      [gpaPoint, rankPoint].forEach((point) => {
+        point.addEventListener("pointermove", (event) => showTooltip(event, item.fullLabel, tooltipLines));
+        point.addEventListener("pointerleave", hideTooltip);
+      });
+      svg.append(gpaPoint, rankPoint);
     });
     container.append(svg);
   }
 
-  function renderSemesterCharts() {
-    const gpa = semesterData((row) => row.绩点);
-    renderLineChart("#semester-gpa", gpa, {
-      min: 3,
-      max: 5,
-      tickFormat: (value) => value.toFixed(1),
-      valueFormat: (value) => value.toFixed(3),
-      tooltipValue: (value) => `绩点 ${value.toFixed(4)}`,
-      ariaLabel: "各学期学分加权绩点折线图",
-    });
-
-    const ranks = semesterData((row) => parseRank(row.教学班排名).percentile);
-    const maxRank = Math.max(40, Math.ceil(Math.max(...ranks.map((item) => item.value)) / 10) * 10);
-    renderLineChart("#semester-rank", ranks, {
-      min: 0,
-      max: maxRank,
-      tickFormat: (value) => `${value.toFixed(0)}%`,
-      valueFormat: (value) => `${value.toFixed(1)}%`,
-      tooltipValue: (value) => `排名百分位 ${value.toFixed(2)}%`,
-      ariaLabel: "各学期学分加权平均教学班排名百分位折线图",
-    });
+  function renderTrendCharts() {
+    renderDualTrend("#semester-trend", buildTrendData(false), "各学期学分加权绩点与平均教学班名次折线图");
+    renderDualTrend("#cumulative-trend", buildTrendData(true), "累计学分加权绩点与累计平均教学班名次折线图");
   }
 
   function renderCategoryGpa() {
@@ -514,29 +497,57 @@
       .filter((row) => typeof row.最终成绩 === "number")
       .map((row) => ({ ...row, rankPercentile: parseRank(row.教学班排名).percentile }));
     const width = Math.max(360, container.clientWidth || 720);
-    const height = width < 520 ? 300 : 330;
-    const margin = { top: 38, right: 20, bottom: 48, left: 52 };
+    const height = width < 520 ? 320 : 350;
+    const margin = { top: 48, right: 20, bottom: 52, left: 52 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     const minScore = 75;
     const maxScore = 100;
-    const maxRank = Math.ceil(Math.max(...data.map((row) => row.rankPercentile)) / 10) * 10;
-    const x = (score) => margin.left + ((score - minScore) / (maxScore - minScore)) * plotWidth;
-    const y = (rank) => margin.top + (rank / maxRank) * plotHeight;
-    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "课程最终成绩与教学班排名百分位散点图" });
+    const minRank = 0.5;
+    const maxRank = 100;
+    const logMin = Math.log10(minRank);
+    const logMax = Math.log10(maxRank);
+    const x = (rank) => margin.left + ((Math.log10(rank) - logMin) / (logMax - logMin)) * plotWidth;
+    const y = (score) => margin.top + ((maxScore - score) / (maxScore - minScore)) * plotHeight;
+    const sortedRanks = data.map((row) => row.rankPercentile).sort((a, b) => a - b);
+    const sortedScores = data.map((row) => row.最终成绩).sort((a, b) => a - b);
+    const median = (values) => values.length % 2 ? values[(values.length - 1) / 2] : (values[values.length / 2 - 1] + values[values.length / 2]) / 2;
+    const rankMedian = median(sortedRanks);
+    const scoreMedian = median(sortedScores);
+    const medianX = x(rankMedian);
+    const medianY = y(scoreMedian);
+    const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "横轴为对数刻度教学班排名百分位、纵轴为课程最终成绩的四象限散点图" });
 
-    [75, 80, 85, 90, 95, 100].forEach((value) => {
+    [
+      [margin.left, margin.top, medianX - margin.left, medianY - margin.top, "rgba(56,107,129,0.045)"],
+      [medianX, margin.top, width - margin.right - medianX, medianY - margin.top, "rgba(180,138,58,0.055)"],
+      [margin.left, medianY, medianX - margin.left, height - margin.bottom - medianY, "rgba(116,128,97,0.035)"],
+      [medianX, medianY, width - margin.right - medianX, height - margin.bottom - medianY, "rgba(200,117,66,0.035)"],
+    ].forEach(([rectX, rectY, rectWidth, rectHeight, fill]) => {
+      svg.append(svgElement("rect", { x: rectX, y: rectY, width: rectWidth, height: rectHeight, fill }));
+    });
+
+    [1, 2, 5, 10, 20, 50, 100].forEach((value) => {
       const xPos = x(value);
       svg.append(svgElement("line", { x1: xPos, x2: xPos, y1: margin.top, y2: height - margin.bottom, class: "grid-line" }));
-      svg.append(svgElement("text", { x: xPos, y: height - 17, "text-anchor": "middle", class: "tick-label" }, value));
+      svg.append(svgElement("text", { x: xPos, y: height - 19, "text-anchor": "middle", class: "tick-label" }, `${value}%`));
     });
-    for (let value = 0; value <= maxRank; value += 20) {
+    [75, 80, 85, 90, 95, 100].forEach((value) => {
       const yPos = y(value);
       svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: yPos, y2: yPos, class: "grid-line" }));
-      svg.append(svgElement("text", { x: margin.left - 8, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, `${value}%`));
+      svg.append(svgElement("text", { x: margin.left - 8, y: yPos + 4, "text-anchor": "end", class: "tick-label" }, value));
+    });
+    svg.append(svgElement("line", { x1: medianX, x2: medianX, y1: margin.top, y2: height - margin.bottom, class: "quadrant-line" }));
+    svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: medianY, y2: medianY, class: "quadrant-line" }));
+    svg.append(svgElement("text", { x: width - margin.right, y: height - 3, "text-anchor": "end", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
+    svg.append(svgElement("text", { x: margin.left, y: margin.top - 10, class: "tick-label" }, "最终成绩"));
+
+    if (width >= 620) {
+      svg.append(svgElement("text", { x: margin.left + 8, y: margin.top + 16, class: "quadrant-label" }, "成绩较高 · 百分位较小"));
+      svg.append(svgElement("text", { x: width - margin.right - 8, y: margin.top + 16, "text-anchor": "end", class: "quadrant-label" }, "成绩较高 · 百分位较大"));
+      svg.append(svgElement("text", { x: margin.left + 8, y: height - margin.bottom - 9, class: "quadrant-label" }, "成绩较低 · 百分位较小"));
+      svg.append(svgElement("text", { x: width - margin.right - 8, y: height - margin.bottom - 9, "text-anchor": "end", class: "quadrant-label" }, "成绩较低 · 百分位较大"));
     }
-    svg.append(svgElement("text", { x: width - margin.right, y: height - 3, "text-anchor": "end", class: "tick-label" }, "最终成绩"));
-    svg.append(svgElement("text", { x: margin.left, y: 13, class: "tick-label" }, "排名百分位"));
 
     const legend = svgElement("g", { transform: `translate(${margin.left},20)` });
     Object.entries(categoryColors).forEach(([label, color], index) => {
@@ -548,8 +559,8 @@
 
     data.forEach((row) => {
       const circle = svgElement("circle", {
-        cx: x(row.最终成绩),
-        cy: y(row.rankPercentile),
+        cx: x(row.rankPercentile),
+        cy: y(row.最终成绩),
         r: 3 + Math.sqrt(row.学分) * 1.15,
         fill: categoryColors[row.类别],
         stroke: "#ffffff",
@@ -557,7 +568,7 @@
         opacity: 0.78,
         tabindex: 0,
       });
-      circle.addEventListener("pointermove", (event) => showTooltip(event, row.课程, [`成绩 ${row.最终成绩}`, `教学班排名 ${row.教学班排名}（${row.rankPercentile.toFixed(2)}%）`, `${row.学分} 学分 · ${row.类别}`]));
+      circle.addEventListener("pointermove", (event) => showTooltip(event, row.课程, [`成绩 ${row.最终成绩}`, `教学班排名 ${row.教学班排名}`, `排名百分位 ${row.rankPercentile.toFixed(2)}%`, `${row.学分} 学分 · ${row.类别}`]));
       circle.addEventListener("pointerleave", hideTooltip);
       circle.addEventListener("focus", () => circle.setAttribute("opacity", "1"));
       circle.addEventListener("blur", () => circle.setAttribute("opacity", "0.78"));
@@ -567,14 +578,13 @@
   }
 
   function renderCharts() {
-    renderDonut();
+    renderCreditDonut();
     renderGradeDistribution();
-    renderSemesterCharts();
+    renderTrendCharts();
     renderCategoryGpa();
     renderScatter();
   }
 
-  renderMetrics();
   renderOverviewTable();
   renderDetailsHead();
   setupFilters();

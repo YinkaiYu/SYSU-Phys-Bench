@@ -23,7 +23,6 @@
     <main id="top" class="shell">
       <section id="overview" class="section section-first" aria-labelledby="overview-title">
         <h1 id="overview-title">成绩总览</h1>
-        <div id="metric-strip" class="metric-strip"></div>
         <div class="table-frame overview-frame">
           <table id="overview-table"></table>
         </div>
@@ -32,28 +31,28 @@
       <section id="charts" class="section" aria-labelledby="charts-title">
         <h2 id="charts-title">数据图表</h2>
         <div class="chart-grid">
-          <article class="chart-card chart-card-small">
+          <article class="chart-card chart-card-half">
             <h3>学分构成</h3>
             <div id="credit-composition" class="chart chart-donut"></div>
           </article>
-          <article class="chart-card chart-card-small">
+          <article class="chart-card chart-card-half">
             <h3>最终成绩分布</h3>
-            <div id="grade-distribution" class="chart"></div>
+            <div id="grade-distribution" class="chart chart-donut"></div>
           </article>
-          <article class="chart-card chart-card-wide">
-            <h3>各学期学分加权绩点</h3>
-            <div id="semester-gpa" class="chart chart-line"></div>
+          <article class="chart-card chart-card-full">
+            <h3>各学期学分加权绩点与平均教学班名次</h3>
+            <div id="semester-trend" class="chart chart-line"></div>
           </article>
-          <article class="chart-card chart-card-wide">
-            <h3>各学期学分加权平均教学班排名百分位</h3>
-            <div id="semester-rank" class="chart chart-line"></div>
+          <article class="chart-card chart-card-full">
+            <h3>累计学分加权绩点与累计平均教学班名次</h3>
+            <div id="cumulative-trend" class="chart chart-line"></div>
           </article>
           <article class="chart-card chart-card-small">
             <h3>各类别学分加权平均绩点</h3>
             <div id="category-gpa" class="chart"></div>
           </article>
           <article class="chart-card chart-card-wide">
-            <h3>课程成绩与教学班排名百分位</h3>
+            <h3>课程成绩与教学班排名百分位（横轴对数刻度）</h3>
             <div id="score-rank-scatter" class="chart chart-scatter"></div>
           </article>
         </div>
@@ -91,9 +90,7 @@
               <option value="">全部学分</option>
               <option value="0-1">0.5–1 学分</option>
               <option value="1.5-2">1.5–2 学分</option>
-              <option value="3">3 学分</option>
-              <option value="4">4 学分</option>
-              <option value="5-6">5–6 学分</option>
+              <option value="3-plus">3 学分以上</option>
             </select>
           </label>
           <button id="reset-filters" class="reset-button" type="button">重置</button>
@@ -102,9 +99,7 @@
         <div class="credit-key" aria-label="学分颜色图例">
           <span><i class="credit-dot credit-1"></i>0.5–1</span>
           <span><i class="credit-dot credit-2"></i>1.5–2</span>
-          <span><i class="credit-dot credit-3"></i>3</span>
-          <span><i class="credit-dot credit-4"></i>4</span>
-          <span><i class="credit-dot credit-5"></i>5–6 学分</span>
+          <span><i class="credit-dot credit-3"></i>3 学分以上</span>
         </div>
 
         <div class="table-frame detail-frame">
