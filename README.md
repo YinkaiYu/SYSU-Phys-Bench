@@ -1,85 +1,195 @@
-# SYSU-Phys-Bench
+<div align="center">
+  <img src="assets/readme/hero.svg" width="100%" alt="SYSU-Phys-Bench：中山大学物理学院本科课程给分基准测试" />
 
-中山大学物理学院本科课程给分基准测试。项目基于余荫铠 2020—2024 年本科成绩与教学班排名数据，以交互式网页呈现课程绩点、排名分布、Yu Index、课程明细及数据集统计。
+  <p><strong>一个开放、可复现、可持续扩展的本科课程给分 benchmark</strong></p>
 
-[在线访问 SYSU-Phys-Bench](https://www.yykspace.com/show/sysu-phys-bench/) · [阅读 Yu Index 技术报告](https://www.yykspace.com/show/sysu-phys-bench/yu-index.html)
+  <p>
+    <a href="https://www.yykspace.com/show/sysu-phys-bench/"><img alt="Live Benchmark" src="https://img.shields.io/badge/Live-Benchmark-244e61?style=for-the-badge" /></a>
+    <a href="https://www.yykspace.com/show/sysu-phys-bench/yu-index.html"><img alt="Yu Index Report" src="https://img.shields.io/badge/Yu_Index-Technical_Report-b48a3a?style=for-the-badge" /></a>
+    <a href="CONTRIBUTING.md"><img alt="Data PRs Welcome" src="https://img.shields.io/badge/Data_PRs-Welcome-748061?style=for-the-badge" /></a>
+  </p>
 
-## 项目内容
+  <p>
+    <a href="https://www.yykspace.com/show/sysu-phys-bench/">网站</a>
+    · <a href="https://www.yykspace.com/show/sysu-phys-bench/yu-index.html">技术报告</a>
+    · <a href="data/README.md">数据集</a>
+    · <a href="CONTRIBUTING.md">贡献指南</a>
+  </p>
+</div>
 
-- **课程绩点与排名分布图**：以教学班排名百分位和课程绩点呈现各课程数据，支持类别、学年、学期和具体课程多选筛选。
-- **Yu Index 与排名分布图**：展示课程给分友好度指标与教学班排名的关系，并标出数据集基准线。
-- **课程明细**：完整列出课程、Yu Index、绩点、成绩、学分、排名、教师、学年、学期及类别，支持搜索、筛选与排序。
-- **数据集统计**：汇总总绩点、总排名、学分构成、绩点分布、学期趋势及各类别学分加权平均绩点。
-- **大图查看与导出**：两张分布图均支持全屏查看和 PNG 下载；桌面端与移动端均可查看数据详情。
-- **Yu Index 计算器**：输入个人绩点、教学班名次与教学班人数，即可计算对应课程的 Yu Index。
+---
+
+## Overview
+
+**SYSU-Phys-Bench** 是中山大学物理学院本科课程给分基准测试。项目结合课程绩点与教学班排名，通过 Yu Index 估计课程给分友好度，并以交互式图表、完整课程记录和可复现的数据管线公开呈现结果。
+
+项目由余荫铠 2020—2024 年本科成绩数据启动，现已开放接收更多中山大学物理学院学生的数据贡献。随着独立样本增加，benchmark 可以覆盖更多课程，并给出统计上更稳定的课程级 Yu Index。
+
+> [!IMPORTANT]
+> **我们正在扩充开放数据集。** 如果你愿意贡献自己的课程成绩、绩点与教学班排名，请阅读 [贡献指南](CONTRIBUTING.md)，通过标准 CSV 和 Pull Request 加入 SYSU-Phys-Bench。
+
+| 当前数据集 | 数量 |
+|---|---:|
+| 贡献者 | 1 |
+| 课程记录 | 63 |
+| 覆盖课程 | 58 |
+| 时间范围 | 2020—2024 |
+
+## Benchmark
+
+SYSU-Phys-Bench 将每条课程记录视为一个实验数据点：
+
+| 信号 | 含义 | 网页呈现 |
+|---|---|---|
+| 课程绩点 $G$ | 学生获得的绝对成绩 | 绩点分布、课程散点、学期趋势 |
+| 教学班名次 $r/n$ | 学生在教学班中的相对位置 | 对数排名轴、排名趋势、交互提示 |
+| Yu Index $Y$ | 分离个人相对表现后的课程给分水平估计 | 课程给分友好度、课程级聚合 |
+| 学分 | 课程权重 | 点尺寸、行层级、加权统计 |
+| 课程属性 | 类别、教师、学年与学期 | 多选筛选、搜索和明细表 |
+
+在线 benchmark 提供：
+
+- **课程绩点与排名分布图**：四象限观察课程的成绩与相对排名组合；
+- **Yu Index 与排名分布图**：比较课程给分友好度并显示数据集基准线；
+- **课程级 / 样本级视图**：既查看每一条原始记录，也查看同名课程的多样本聚合；
+- **完整课程明细**：搜索、筛选、排序并保留贡献者与样本信息；
+- **数据集统计**：贡献者、记录数、课程覆盖、绩点分布、学分构成和类别统计；
+- **全屏与 PNG 导出**：生成适合分享和进一步分析的高分辨率图表；
+- **Yu Index 计算器**：使用自己的 $G$、$r$、$n$ 计算单条实验数据点。
 
 ## Yu Index
 
-Yu Index 是 SYSU-Phys-Bench 的课程给分友好度指标：
+对个人绩点 $G$、教学班名次 $r$ 和教学班人数 $n$，定义：
 
 $$
-Y=G-\frac{1}{3}\Phi^{-1}\!\left(\frac{n-r+\frac{5}{8}}{n+\frac{1}{4}}\right)
+Y=G-\frac{1}{3}\Phi^{-1}\!\left(\frac{n-r+\frac{5}{8}}{n+\frac{1}{4}}\right),
 $$
 
-其中：
+其中 $\Phi^{-1}$ 是标准正态分布的逆累积分布函数。Yu Index 使用名次估计个人相对表现，再从个人绩点中分离这一部分，得到与 GPA 同尺度的课程给分水平估计。**Yu Index 越高，说明课程给分越友好。**
 
-- $G$ 为个人绩点；
-- $r$ 为教学班名次，第 1 名为最高；
-- $n$ 为教学班人数；
-- $\Phi^{-1}$ 为标准正态分布的逆累积分布函数。
+同一课程有 $m_c$ 条有效记录时，课程级 benchmark 取观测级 Yu Index 的算术平均：
 
-Yu Index 使用教学班排名估计个人相对表现，再从个人绩点中分离这一部分，得到与 GPA 同尺度的课程给分水平估计。Yu Index 越高，说明课程给分越友好。完整推导、参数选择、数据校验与计算示例见 [Yu Index 技术报告](https://www.yykspace.com/show/sysu-phys-bench/yu-index.html)。
+$$
+\bar{Y}_c=\frac{1}{m_c}\sum_{i=1}^{m_c}Y_i.
+$$
 
-## 数据
+网页会同时报告课程的样本数和独立贡献者数量。公式推导、Blom 位置、参数拟合、相关性检验和计算示例见 [Yu Index 技术报告](https://www.yykspace.com/show/sysu-phys-bench/yu-index.html)。
 
-网页数据来自两份本科成绩表：
+## Open Dataset
 
-- 成绩总览：各学期绩点、排名、学分及累计数据；
-- 成绩明细：逐门课程的成绩、绩点、学分、教学班排名、教师、学年、学期与课程类别。
+社区数据采用“一位贡献者一个 CSV”的结构。原始投稿经过统一校验后，确定性生成浏览器可直接加载的 `community-data.js`。
 
-用于网页渲染的完整数据保存在 [`data.js`](data.js) 中。原始 Excel 工作簿位于维护者的本地上级目录，不纳入本仓库；[`scripts/extract_data.py`](scripts/extract_data.py) 用于从这两份工作簿重新生成 `data.js`。
-
-## 项目结构
-
-```text
-.
-├── index.html               # 基准测试主页
-├── yu-index.html            # Yu Index 技术报告
-├── styles.css               # 页面、图表与响应式样式
-├── app.js                   # 筛选、表格、图表、计算器及 PNG 导出
-├── data.js                  # 网页使用的成绩数据
-└── scripts/
-    └── extract_data.py      # Excel 数据提取脚本
+```mermaid
+flowchart LR
+    A[贡献者 CSV] --> B[Schema Validator]
+    B --> C[Community Dataset]
+    C --> D[观测级 Yu Index]
+    D --> E[课程级 Benchmark]
+    E --> F[交互式网页]
 ```
 
-项目采用原生 HTML、CSS、JavaScript 和 SVG，无前端框架或构建步骤。
+```text
+data/submissions/*.csv
+        │
+        ├── python scripts/validate_submissions.py
+        └── python scripts/build_dataset.py
+                         │
+                         └── community-data.js
+```
 
-## 本地运行
+每条记录包括匿名贡献者 ID、入学年份、培养方向、课程、教师、类别、学年、学期、学分、最终成绩、绩点、教学班名次与教学班人数。完整字段定义见 [数据集说明](data/README.md)。
 
-直接打开 `index.html`，或在仓库目录启动静态文件服务器：
+## Contribute Data
+
+贡献一份新数据只需要四步：
+
+1. Fork 本仓库；
+2. 将 [`data/submissions/template.csv`](data/submissions/template.csv) 复制为你的匿名 `contributor_id.csv`；
+3. 填写课程记录并运行校验与构建；
+4. 提交 Pull Request。
 
 ```powershell
+python scripts/validate_submissions.py
+python scripts/build_dataset.py
+python scripts/build_dataset.py --check
+```
+
+GitHub Actions 会对每个数据 PR 自动执行同样的检查。投稿必须是贡献者本人所有或已获明确授权的数据，并且不得包含姓名、学号、联系方式或原始成绩单文件。
+
+详细流程、字段表、匿名规则、审核标准和数据修正方式见 **[CONTRIBUTING.md](CONTRIBUTING.md)**。
+
+## Reproducibility
+
+网页采用原生 HTML、CSS、JavaScript 与 SVG，无前端框架和构建步骤。克隆后可直接打开 `index.html`，或启动本地静态服务器：
+
+```bash
+git clone https://github.com/YinkaiYu/SYSU-Phys-Bench.git
+cd SYSU-Phys-Bench
 python -m http.server 8000
 ```
 
-然后访问 <http://localhost:8000/>。
+访问 <http://localhost:8000/>。
 
-## 更新数据
+验证公开数据集：
 
-数据提取脚本依赖 Python 与 `openpyxl`。将以下文件放在仓库上一级目录：
-
-```text
-余荫铠-成绩总览.xlsx
-余荫铠-成绩明细.xlsx
+```bash
+python scripts/validate_submissions.py
+python scripts/build_dataset.py --check
 ```
 
-安装依赖并重新生成数据：
+从维护者的原始 Excel 工作簿重新生成首批数据需要 `openpyxl`：
 
-```powershell
+```bash
 python -m pip install openpyxl
 python scripts/extract_data.py
+python scripts/build_dataset.py
 ```
 
-## 作者
+## Repository Structure
+
+```text
+SYSU-Phys-Bench/
+├── .github/
+│   ├── workflows/validate-data.yml    # 数据 PR 自动校验
+│   └── PULL_REQUEST_TEMPLATE.md       # 投稿检查清单
+├── assets/readme/hero.svg             # README 项目视觉
+├── data/
+│   ├── README.md                      # 数据集与聚合说明
+│   └── submissions/                   # 标准化社区投稿
+├── scripts/
+│   ├── extract_data.py                # 初始 Excel 数据提取
+│   ├── validate_submissions.py        # CSV schema 与数值校验
+│   └── build_dataset.py               # 生成浏览器数据
+├── index.html                         # Benchmark 主页面
+├── yu-index.html                      # Yu Index 技术报告
+├── app.js                             # 图表、筛选、聚合与交互
+├── styles.css                         # 页面与响应式样式
+├── data.js                            # 初始成绩总览
+├── community-data.js                  # 社区数据生成文件
+├── CONTRIBUTING.md                    # 完整贡献指南
+└── CITATION.cff                       # 引用元数据
+```
+
+## Roadmap
+
+- [x] 发布 2020—2024 初始课程数据
+- [x] 建立 Yu Index 与公开技术报告
+- [x] 提供交互式 benchmark、移动端交互与 PNG 导出
+- [x] 建立标准投稿格式、自动校验和 PR 工作流
+- [x] 支持多贡献者数据集规模统计与课程级聚合
+- [ ] 扩充不同年级、培养方向和课程类别的数据覆盖
+- [ ] 在样本量允许时加入课程级不确定度与跨学期稳健性分析
+- [ ] 发布带版本号的数据集快照
+
+## Citation
+
+仓库提供 [`CITATION.cff`](CITATION.cff)。如果在分析、文章或项目中使用 SYSU-Phys-Bench，可引用本仓库：
+
+```text
+Yu, Yin-Kai. SYSU-Phys-Bench: 中山大学物理学院本科课程给分基准测试. 2026.
+https://github.com/YinkaiYu/SYSU-Phys-Bench
+```
+
+## Maintainer
 
 余荫铠 · [yykspace.com](https://www.yykspace.com/)

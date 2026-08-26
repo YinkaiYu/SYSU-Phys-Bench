@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use SYSU-Phys-Bench, please cite this repository."
+title: "SYSU-Phys-Bench: 中山大学物理学院本科课程给分基准测试"
+type: dataset
+authors:
+  - family-names: Yu
+    given-names: Yin-Kai
+repository-code: "https://github.com/YinkaiYu/SYSU-Phys-Bench"
+url: "https://www.yykspace.com/show/sysu-phys-bench/"
+version: 1.0.0
+date-released: 2026-08-26

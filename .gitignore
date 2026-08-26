@@ -1,4 +1,5 @@
 .DS_Store
 Thumbs.db
 __pycache__/
-
+data/submissions/*.xlsx
+data/submissions/*.xls

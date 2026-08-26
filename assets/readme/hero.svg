@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+  <title id="title">SYSU-Phys-Bench</title>
+  <desc id="description">中山大学物理学院本科课程给分基准测试</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14252d"/>
+      <stop offset="0.58" stop-color="#244e61"/>
+      <stop offset="1" stop-color="#386b81"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="76%" cy="35%" r="56%">
+      <stop offset="0" stop-color="#88c0d5" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#88c0d5" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#081217" flood-opacity=".34"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="360" rx="28" fill="url(#background)"/>
+  <rect width="1200" height="360" rx="28" fill="url(#glow)"/>
+  <g opacity=".11" stroke="#d7eef6">
+    <path d="M650 48V312M750 48V312M850 48V312M950 48V312M1050 48V312"/>
+    <path d="M614 84H1130M614 144H1130M614 204H1130M614 264H1130"/>
+  </g>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" fill="#f4fafc">
+    <text x="66" y="128" font-size="18" font-weight="700" letter-spacing="5" fill="#9fc6d5">OPEN COURSE-GRADING BENCHMARK</text>
+    <text x="62" y="198" font-size="56" font-weight="760" letter-spacing="-1">SYSU-Phys-Bench</text>
+    <text x="66" y="244" font-size="24" fill="#c8dce4">中山大学物理学院本科课程给分基准测试</text>
+    <text x="66" y="296" font-size="15" font-weight="650" letter-spacing="2" fill="#8fb4c3">GPA × CLASS RANK × YU INDEX</text>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="684" cy="238" r="9" fill="#e9b872" stroke="#fff" stroke-width="2"/>
+    <rect x="754" y="165" width="17" height="17" rx="3" fill="#ed8257" stroke="#fff" stroke-width="2"/>
+    <path d="M852 104l11 11-11 11-11-11z" fill="#d58ba4" stroke="#fff" stroke-width="2"/>
+    <path d="M930 223l12 20h-24z" fill="#a4b879" stroke="#fff" stroke-width="2"/>
+    <circle cx="1012" cy="137" r="11" fill="#67a9c5" stroke="#fff" stroke-width="2"/>
+    <rect x="1063" y="254" width="19" height="19" rx="3" fill="#ed8257" stroke="#fff" stroke-width="2"/>
+    <circle cx="793" cy="274" r="7" fill="#67a9c5" stroke="#fff" stroke-width="2"/>
+    <path d="M974 85l9 15h-18z" fill="#a4b879" stroke="#fff" stroke-width="2"/>
+  </g>
+  <path d="M657 287C735 269 785 234 848 197s133-51 257-125" fill="none" stroke="#cceaf5" stroke-width="2" stroke-dasharray="7 8" opacity=".5"/>
+</svg>

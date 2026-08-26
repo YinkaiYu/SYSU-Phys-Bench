@@ -1,0 +1,32 @@
+name: Validate contributed data
+
+on:
+  pull_request:
+    paths:
+      - "data/submissions/**"
+      - "scripts/validate_submissions.py"
+      - "scripts/build_dataset.py"
+      - "community-data.js"
+  push:
+    branches: [main]
+    paths:
+      - "data/submissions/**"
+      - "scripts/validate_submissions.py"
+      - "scripts/build_dataset.py"
+      - "community-data.js"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate CSV submissions
+        run: python scripts/validate_submissions.py
+      - name: Verify generated browser data
+        run: python scripts/build_dataset.py --check
