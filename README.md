@@ -7,17 +7,8 @@
 
   <p>
     <a href="https://github.com/YinkaiYu/SYSU-Phys-Bench/actions/workflows/validate-data.yml"><img alt="Data validation" src="https://img.shields.io/github/actions/workflow/status/YinkaiYu/SYSU-Phys-Bench/validate-data.yml?branch=main&amp;style=flat-square&amp;label=data%20validation&amp;logo=githubactions&amp;logoColor=white&amp;color=244e61" /></a>
-    <img alt="63 course records" src="https://img.shields.io/badge/records-63-386b81?style=flat-square" />
-    <img alt="58 covered courses" src="https://img.shields.io/badge/courses-58-b48a3a?style=flat-square" />
-    <img alt="1 data contributor" src="https://img.shields.io/badge/data%20contributors-1-748061?style=flat-square" />
-    <a href="https://github.com/YinkaiYu/SYSU-Phys-Bench/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/YinkaiYu/SYSU-Phys-Bench?style=flat-square&amp;label=updated&amp;color=a55f7a" /></a>
-    <a href="https://github.com/YinkaiYu/SYSU-Phys-Bench/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/YinkaiYu/SYSU-Phys-Bench?style=flat-square&amp;color=c45d32" /></a>
-  </p>
-
-  <p>
-    <a href="https://www.yykspace.com/show/sysu-phys-bench/"><img alt="Open live benchmark" src="https://img.shields.io/badge/Open-Live_Benchmark-244e61?style=for-the-badge" /></a>
-    <a href="https://www.yykspace.com/show/sysu-phys-bench/yu-index.html"><img alt="Read Yu Index report" src="https://img.shields.io/badge/Read-Yu_Index_Report-b48a3a?style=for-the-badge" /></a>
-    <a href="CONTRIBUTING.md"><img alt="Contribute data" src="https://img.shields.io/badge/Contribute-Data_via_PR-748061?style=for-the-badge" /></a>
+    <a href="https://www.yykspace.com/show/sysu-phys-bench/"><img alt="Open live benchmark" src="https://img.shields.io/badge/Open-Live_Benchmark-244e61?style=flat-square" /></a>
+    <a href="CONTRIBUTING.md"><img alt="Contribute data" src="https://img.shields.io/badge/Contribute-Data_via_PR-748061?style=flat-square" /></a>
   </p>
 
   <p>
@@ -44,10 +35,6 @@
 
 > [!IMPORTANT]
 > **我们正在扩充开放数据集。** 如果你愿意贡献自己的课程成绩、绩点与教学班排名，请阅读 [贡献指南](CONTRIBUTING.md)，通过标准 CSV 和 Pull Request 加入 SYSU-Phys-Bench。
-
-<a href="https://www.yykspace.com/show/sysu-phys-bench/">
-  <img src="assets/readme/website-preview.png" width="100%" alt="SYSU-Phys-Bench 在线网页预览，包含 Yu Index 定义与计算器" />
-</a>
 
 | 当前数据集 | 数量 |
 |---|---:|
@@ -132,7 +119,9 @@ data/submissions/*.csv
 ```powershell
 python scripts/validate_submissions.py
 python scripts/build_dataset.py
+python scripts/build_readme_visual.py
 python scripts/build_dataset.py --check
+python scripts/build_readme_visual.py --check
 ```
 
 GitHub Actions 会对每个数据 PR 自动执行同样的检查。投稿必须是贡献者本人所有或已获明确授权的数据，并且不得包含姓名、学号、联系方式或原始成绩单文件。
@@ -156,6 +145,7 @@ python -m http.server 8000
 ```bash
 python scripts/validate_submissions.py
 python scripts/build_dataset.py --check
+python scripts/build_readme_visual.py --check
 ```
 
 从维护者的原始 Excel 工作簿重新生成首批数据需要 `openpyxl`：
@@ -164,6 +154,7 @@ python scripts/build_dataset.py --check
 python -m pip install openpyxl
 python scripts/extract_data.py
 python scripts/build_dataset.py
+python scripts/build_readme_visual.py
 ```
 
 ## Repository Structure
@@ -180,7 +171,8 @@ SYSU-Phys-Bench/
 ├── scripts/
 │   ├── extract_data.py                # 初始 Excel 数据提取
 │   ├── validate_submissions.py        # CSV schema 与数值校验
-│   └── build_dataset.py               # 生成浏览器数据
+│   ├── build_dataset.py               # 生成浏览器数据
+│   └── build_readme_visual.py          # 生成 README 数据主视觉
 ├── index.html                         # Benchmark 主页面
 ├── yu-index.html                      # Yu Index 技术报告
 ├── app.js                             # 图表、筛选、聚合与交互

@@ -81,18 +81,20 @@ python scripts/validate_submissions.py
 
 ```powershell
 python scripts/build_dataset.py
+python scripts/build_readme_visual.py
 ```
 
 再次确认生成文件已经同步：
 
 ```powershell
 python scripts/build_dataset.py --check
+python scripts/build_readme_visual.py --check
 ```
 
-提交 CSV 与更新后的 `community-data.js`：
+提交 CSV、更新后的 `community-data.js` 与 README 数据主视觉：
 
 ```bash
-git add data/submissions/<contributor_id>.csv community-data.js
+git add data/submissions/<contributor_id>.csv community-data.js assets/readme/hero.svg
 git commit -m "data: add <contributor_id> course records"
 git push -u origin data/<contributor_id>
 ```
@@ -140,7 +142,7 @@ $$
 node --check app.js
 ```
 
-修改投稿格式或构建脚本后，必须同时更新 `data/README.md`、模板、校验器和贡献指南。
+修改投稿格式或构建脚本后，必须同时更新 `data/README.md`、模板、校验器和贡献指南。数据发生变化时，还必须重新生成 README 数据主视觉。
 
 ## 数据修正与移除
 
