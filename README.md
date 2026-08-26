@@ -1,6 +1,8 @@
-<div align="center">
-  <img src="assets/brand/logo-mark.svg" width="96" alt="SYSU-Phys-Bench logo" />
+<a href="https://www.yykspace.com/show/sysu-phys-bench/">
+  <img src="assets/readme/hero-v2.png" width="100%" alt="SYSU-Phys-Bench benchmark visual identity" />
+</a>
 
+<div align="center">
   <h1>SYSU-Phys-Bench</h1>
 
   <h3>中山大学物理学院本科课程给分基准测试</h3>
@@ -8,9 +10,9 @@
   <p><strong>把课程给分的系统偏差还给课程，如此留下的是我们自身水平的真实</strong></p>
 
   <p>
-    <img alt="Course records" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.record_count&amp;label=%E8%AF%BE%E7%A8%8B%E8%AE%B0%E5%BD%95&amp;color=244e61&amp;style=flat-square" />
-    <img alt="Covered courses" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.course_count&amp;label=%E8%A6%86%E7%9B%96%E8%AF%BE%E7%A8%8B&amp;color=c87542&amp;style=flat-square" />
-    <img alt="Contributors" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.contributor_count&amp;label=%E8%B4%A1%E7%8C%AE%E8%80%85&amp;color=748061&amp;style=flat-square" />
+    <img alt="Course records" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.record_count&amp;label=%E8%AF%BE%E7%A8%8B%E8%AE%B0%E5%BD%95&amp;color=2155f5&amp;style=flat-square" />
+    <img alt="Covered courses" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.course_count&amp;label=%E8%A6%86%E7%9B%96%E8%AF%BE%E7%A8%8B&amp;color=f97316&amp;style=flat-square" />
+    <img alt="Contributors" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.contributor_count&amp;label=%E8%B4%A1%E7%8C%AE%E8%80%85&amp;color=22a06b&amp;style=flat-square" />
   </p>
 
   <p>
@@ -24,10 +26,6 @@
     · <a href="#citation">引用</a>
   </p>
 </div>
-
-<a href="https://www.yykspace.com/show/sysu-phys-bench/">
-  <img src="assets/readme/hero.svg" width="100%" alt="SYSU-Phys-Bench benchmark visual identity" />
-</a>
 
 ---
 
@@ -82,17 +80,17 @@ SYSU-Phys-Bench 将每条课程记录视为一个实验数据点：
 
 对个人绩点 $G$、教学班名次 $r$ 和教学班人数 $n$，定义：
 
-$$
+```math
 Y=G-\frac{1}{3}\Phi^{-1}\!\left(\frac{n-r+\frac{5}{8}}{n+\frac{1}{4}}\right),
-$$
+```
 
 其中 $\Phi^{-1}$ 是标准正态分布的逆累积分布函数。Yu Index 使用名次估计个人相对表现，再从个人绩点中分离这一部分，得到与 GPA 同尺度的课程给分水平估计。**Yu Index 越高，说明课程给分越友好。**
 
 同一课程有 $m_c$ 条有效记录时，课程级 benchmark 取观测级 Yu Index 的算术平均：
 
-$$
+```math
 \bar{Y}_c=\frac{1}{m_c}\sum_{i=1}^{m_c}Y_i.
-$$
+```
 
 网页会同时报告课程的样本数和独立贡献者数量。公式推导、Blom 位置、参数拟合、相关性检验和计算示例见 [Yu Index 技术报告](https://www.yykspace.com/show/sysu-phys-bench/yu-index.html)。
 
@@ -180,7 +178,7 @@ SYSU-Phys-Bench/
 │   ├── workflows/validate-data.yml    # 数据 PR 自动校验
 │   └── PULL_REQUEST_TEMPLATE.md       # 投稿检查清单
 ├── assets/
-│   ├── brand/logo-mark.svg            # 项目标志
+│   ├── brand/logo-mark-v2.png         # 项目标志
 │   ├── docs/jwxt-grade-query.png      # 教务系统操作示意
 │   └── readme/                        # 品牌主视觉、动态统计与当前结果图
 ├── data/
@@ -196,6 +194,7 @@ SYSU-Phys-Bench/
 ├── yu-index.html                      # Yu Index 技术报告
 ├── app.js                             # 图表、筛选、聚合与交互
 ├── styles.css                         # 页面与响应式样式
+├── bench.css                          # 统一品牌视觉与动效
 ├── data.js                            # 初始成绩总览
 ├── community-data.js                  # 社区数据生成文件
 ├── CONTRIBUTING.md                    # 完整贡献指南
