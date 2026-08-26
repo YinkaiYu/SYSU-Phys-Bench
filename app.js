@@ -1046,13 +1046,18 @@
       return;
     }
     const compact = window.innerWidth < 680;
-    const width = Math.max(compact ? 820 : 600, container.clientWidth || 720);
+    const availableWidth = Math.max(280, Math.floor(container.clientWidth || window.innerWidth - 58));
+    const width = expanded ? Math.max(600, availableWidth) : compact ? availableWidth : Math.max(600, availableWidth);
     const height = expanded
       ? Math.max(560, container.clientHeight || window.innerHeight - 84)
       : compact
-        ? 470
+        ? Math.round(Math.max(590, Math.min(720, width * 1.92)))
         : Math.max(430, Math.min(560, width * 0.42));
-    const margin = expanded ? { top: 76, right: 32, bottom: 72, left: 84 } : { top: 58, right: 20, bottom: 52, left: 64 };
+    const margin = expanded
+      ? { top: 76, right: 32, bottom: 72, left: 84 }
+      : compact
+        ? { top: 56, right: 8, bottom: 58, left: 44 }
+        : { top: 58, right: 20, bottom: 52, left: 64 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     const scoreDomain = halfStepDomain(data.map((row) => row.绩点), { floor: 0, ceiling: 5 });
@@ -1095,7 +1100,7 @@
     svg.append(svgElement("line", { x1: margin.left, x2: width - margin.right, y1: medianY, y2: medianY, class: "quadrant-line" }));
     svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - (expanded ? 5 : 3), "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
-    const yAxisLabelX = expanded ? 22 : 16;
+    const yAxisLabelX = expanded ? 22 : compact ? 11 : 16;
     svg.append(svgElement("text", { x: yAxisLabelX, y: yAxisCenter, transform: `rotate(-90 ${yAxisLabelX} ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "绩点"));
 
     if (width >= 620) {
@@ -1165,13 +1170,18 @@
 
     const expanded = isYuScatterExpanded();
     const compact = window.innerWidth < 680;
-    const width = Math.max(compact ? 820 : 600, container.clientWidth || 720);
+    const availableWidth = Math.max(280, Math.floor(container.clientWidth || window.innerWidth - 58));
+    const width = expanded ? Math.max(600, availableWidth) : compact ? availableWidth : Math.max(600, availableWidth);
     const height = expanded
       ? Math.max(560, container.clientHeight || window.innerHeight - 84)
       : compact
-        ? 500
+        ? Math.round(Math.max(610, Math.min(740, width * 1.98)))
         : Math.max(460, Math.min(590, width * 0.45));
-    const margin = expanded ? { top: 76, right: 32, bottom: 72, left: 84 } : { top: 58, right: 20, bottom: 52, left: 64 };
+    const margin = expanded
+      ? { top: 76, right: 32, bottom: 72, left: 84 }
+      : compact
+        ? { top: 56, right: 8, bottom: 58, left: 44 }
+        : { top: 58, right: 20, bottom: 52, left: 64 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     const minRank = 0.5;
@@ -1197,7 +1207,7 @@
     });
     svg.append(svgElement("text", { x: margin.left + plotWidth / 2, y: height - (expanded ? 5 : 3), "text-anchor": "middle", class: "tick-label" }, "教学班排名百分位（对数刻度）"));
     const yAxisCenter = margin.top + plotHeight / 2;
-    const yAxisLabelX = expanded ? 22 : 16;
+    const yAxisLabelX = expanded ? 22 : compact ? 11 : 16;
     svg.append(svgElement("text", { x: yAxisLabelX, y: yAxisCenter, transform: `rotate(-90 ${yAxisLabelX} ${yAxisCenter})`, "text-anchor": "middle", class: "tick-label" }, "Yu Index"));
 
     const benchmarkY = y(yuIndexBenchmark);
