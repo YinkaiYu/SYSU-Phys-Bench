@@ -5,8 +5,12 @@
 ## 数据流
 
 ```text
-data/submissions/*.csv
+教务系统复制文本
         │
+        └── scripts/convert_sysu_clipboard.py
+                         │
+                         ▼
+data/submissions/*.csv
         ├── scripts/validate_submissions.py  校验格式与取值
         ├── scripts/build_dataset.py         生成 community-data.js → SYSU-Phys-Bench 网页
         └── scripts/build_readme_visual.py   生成 assets/readme/hero.svg → README 数据主视觉

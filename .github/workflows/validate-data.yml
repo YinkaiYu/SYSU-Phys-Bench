@@ -7,6 +7,8 @@ on:
       - "scripts/validate_submissions.py"
       - "scripts/build_dataset.py"
       - "scripts/build_readme_visual.py"
+      - "scripts/convert_sysu_clipboard.py"
+      - "tests/**"
       - "community-data.js"
       - "assets/readme/hero.svg"
   push:
@@ -16,6 +18,8 @@ on:
       - "scripts/validate_submissions.py"
       - "scripts/build_dataset.py"
       - "scripts/build_readme_visual.py"
+      - "scripts/convert_sysu_clipboard.py"
+      - "tests/**"
       - "community-data.js"
       - "assets/readme/hero.svg"
 
@@ -36,3 +40,5 @@ jobs:
         run: python scripts/build_dataset.py --check
       - name: Verify README data visual
         run: python scripts/build_readme_visual.py --check
+      - name: Test SYSU clipboard converter
+        run: python -m unittest discover -s tests

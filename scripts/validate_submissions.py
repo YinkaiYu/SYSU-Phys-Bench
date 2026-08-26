@@ -27,7 +27,7 @@ FIELDS = [
     "class_rank",
     "class_size",
 ]
-ALLOWED_CATEGORIES = {"公必", "专必", "公选", "专选", "其他"}
+ALLOWED_CATEGORIES = {"公必", "专必", "公选", "专选", "荣誉课程", "其他"}
 ALLOWED_ACADEMIC_YEARS = {"大一", "大二", "大三", "大四", "其他"}
 ALLOWED_SEMESTERS = {"第一学期", "第二学期", "暑期", "其他"}
 IDENTIFIER_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{2,31}$")

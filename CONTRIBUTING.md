@@ -23,6 +23,61 @@
 
 教师字段是可选字段。原始 Excel、PDF、截图或教务系统导出文件不应加入仓库。
 
+## 从教务系统获取成绩
+
+### 1. 查询一个学期
+
+1. 打开[中山大学教务系统](https://jwxt.sysu.edu.cn/)，使用 NetID 登录；已毕业学生也可以登录；
+2. 点击“我的成绩”，进入“成绩查询”；
+3. 选择培养类别、学年和学期，勾选需要查询的课程类别；
+4. 点击“查询”。系统一次只能查询一个学期，因此需要逐学期操作。
+
+![中山大学教务系统成绩查询页面](assets/docs/jwxt-grade-query.png)
+
+### 2. 复制成绩表格
+
+从表格第一条课程开始，框选到最后一条课程的“教学班排名”，然后复制。复制内容会包含课程、教师、学年、学期、学分、最终成绩、绩点和教学班排名。教师为空的课程也可以正常转换。
+
+不需要手工整理制表符或换行。转换脚本会识别教务系统复制文本中的断行和空白字段。
+
+### 3. 一键转换当前剪贴板
+
+先按下方数据投稿流程 Fork 并克隆仓库，再确定一个匿名 `contributor_id`，例如 `phys-2023-a7`。在仓库目录运行：
+
+```powershell
+python scripts/convert_sysu_clipboard.py `
+  --clipboard `
+  --contributor-id phys-2023-a7 `
+  --cohort 2023 `
+  --program 物理学
+```
+
+脚本会自动：
+
+- 读取当前剪贴板；
+- 识别教务系统表格行和缺失教师；
+- 将 `22/35` 拆分为教学班名次与人数；
+- 根据入学年份、学年和学期生成“大一/大二”和 `2020-fall` 一类字段；
+- 生成稳定且匿名的 `record_id`；
+- 创建或合并到 `data/submissions/phys-2023-a7.csv`。
+
+查询并复制下一个学期后，重复运行同一条命令。已经导入过的相同课程会自动跳过，因此可以放心重跑。
+
+### 4. 使用文本文件批量转换
+
+如果系统无法读取剪贴板，可以将每学期复制的内容分别保存为 UTF-8 文本文件。建议放在仓库的 `local-import/` 目录；该目录已被 Git 忽略，不会进入 Pull Request。
+
+```powershell
+python scripts/convert_sysu_clipboard.py `
+  local-import/2020-fall.txt `
+  local-import/2021-spring.txt `
+  --contributor-id phys-2023-a7 `
+  --cohort 2023 `
+  --program 物理学
+```
+
+转换完成后，打开生成的 CSV，抽查课程、最终成绩、绩点和教学班排名。不要提交 `local-import/` 中的原始复制文本。
+
 ## 数据投稿流程
 
 ### 1. Fork 并创建分支
@@ -33,9 +88,11 @@ cd SYSU-Phys-Bench
 git checkout -b data/<你的 contributor_id>
 ```
 
-### 2. 创建投稿文件
+### 2. 生成或创建投稿文件
 
-复制模板，并将文件名改成你的 `contributor_id`：
+推荐使用上面的教务系统转换脚本。它会直接生成符合字段顺序的投稿 CSV。
+
+如需手工填写，也可以复制模板，并将文件名改成你的 `contributor_id`：
 
 ```powershell
 Copy-Item data/submissions/template.csv data/submissions/<contributor_id>.csv
@@ -45,7 +102,7 @@ Copy-Item data/submissions/template.csv data/submissions/<contributor_id>.csv
 
 每个 `record_id` 必须全局唯一，并以 `<contributor_id>-` 开头，例如：`phys-2023-a7-001`。
 
-### 3. 填写课程记录
+### 3. 检查课程记录
 
 CSV 必须使用 UTF-8 编码，表头顺序不得更改。字段定义如下：
 
@@ -57,7 +114,7 @@ CSV 必须使用 UTF-8 编码，表头顺序不得更改。字段定义如下：
 | `program` | 是 | 文本 | 专业或培养方向，如 `物理学` |
 | `course_name` | 是 | 文本 | 教务系统中的正式课程名 |
 | `teacher` | 否 | 文本 | 多位教师使用英文逗号分隔 |
-| `category` | 是 | 枚举 | `公必`、`专必`、`公选`、`专选` 或 `其他` |
+| `category` | 是 | 枚举 | `公必`、`专必`、`公选`、`专选`、`荣誉课程` 或 `其他` |
 | `academic_year` | 是 | 枚举 | `大一`、`大二`、`大三`、`大四` 或 `其他` |
 | `semester` | 是 | 枚举 | `第一学期`、`第二学期`、`暑期` 或 `其他` |
 | `term_id` | 是 | 学期标识 | `YYYY-fall`、`YYYY-spring`、`YYYY-summer` 或 `YYYY-other`，后缀须与学期一致 |
@@ -67,7 +124,7 @@ CSV 必须使用 UTF-8 编码，表头顺序不得更改。字段定义如下：
 | `class_rank` | 是 | 正整数 | 教学班名次，第 1 名为最高 |
 | `class_size` | 是 | ≥2 的整数 | 教学班总人数 |
 
-请为每一门课程填写一行。不要合并课程，也不要预先计算 Yu Index。
+每门课程应占一行。不要合并课程，也不要预先计算 Yu Index。无论使用自动转换还是手工填写，都应在提交前抽查生成结果。
 
 ### 4. 本地校验并生成网页数据
 

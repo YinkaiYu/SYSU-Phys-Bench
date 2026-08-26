@@ -112,9 +112,15 @@ data/submissions/*.csv
 贡献一份新数据只需要四步：
 
 1. Fork 本仓库；
-2. 将 [`data/submissions/template.csv`](data/submissions/template.csv) 复制为你的匿名 `contributor_id.csv`；
-3. 填写课程记录并运行校验与构建；
+2. 在教务系统逐学期复制成绩表，使用转换脚本生成匿名投稿 CSV；
+3. 检查课程记录并运行校验与构建；
 4. 提交 Pull Request。
+
+复制一个学期后即可运行：
+
+```powershell
+python scripts/convert_sysu_clipboard.py --clipboard --contributor-id phys-2023-a7 --cohort 2023 --program 物理学
+```
 
 ```powershell
 python scripts/validate_submissions.py
@@ -164,15 +170,19 @@ SYSU-Phys-Bench/
 ├── .github/
 │   ├── workflows/validate-data.yml    # 数据 PR 自动校验
 │   └── PULL_REQUEST_TEMPLATE.md       # 投稿检查清单
-├── assets/readme/hero.svg             # README 项目视觉
+├── assets/
+│   ├── docs/jwxt-grade-query.png      # 教务系统操作示意
+│   └── readme/hero.svg                # README 数据主视觉
 ├── data/
 │   ├── README.md                      # 数据集与聚合说明
 │   └── submissions/                   # 标准化社区投稿
 ├── scripts/
 │   ├── extract_data.py                # 初始 Excel 数据提取
 │   ├── validate_submissions.py        # CSV schema 与数值校验
+│   ├── convert_sysu_clipboard.py      # 教务系统复制文本转换
 │   ├── build_dataset.py               # 生成浏览器数据
 │   └── build_readme_visual.py          # 生成 README 数据主视觉
+├── tests/                              # 转换器自动测试
 ├── index.html                         # Benchmark 主页面
 ├── yu-index.html                      # Yu Index 技术报告
 ├── app.js                             # 图表、筛选、聚合与交互
