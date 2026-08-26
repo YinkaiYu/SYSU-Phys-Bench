@@ -587,7 +587,7 @@
     });
   }
 
-  function showTooltip(event, title, lines, tooltipSelector = "#chart-tooltip") {
+  function showTooltip(event, title, lines, tooltipSelector = "#chart-tooltip", target = event.currentTarget) {
     const tooltip = $(tooltipSelector);
     tooltip.replaceChildren();
     const strong = document.createElement("strong");
@@ -598,8 +598,15 @@
       span.textContent = line;
       tooltip.append(span);
     });
-    tooltip.style.left = `${Math.min(event.clientX, window.innerWidth - 320)}px`;
-    tooltip.style.top = `${Math.min(event.clientY, window.innerHeight - 120)}px`;
+    const targetBounds = target?.getBoundingClientRect?.();
+    const pointerX = Number.isFinite(event.clientX) && event.clientX > 0
+      ? event.clientX
+      : (targetBounds?.left || 0) + (targetBounds?.width || 0) / 2;
+    const pointerY = Number.isFinite(event.clientY) && event.clientY > 0
+      ? event.clientY
+      : (targetBounds?.top || 0) + (targetBounds?.height || 0) / 2;
+    tooltip.style.left = `${Math.max(8, Math.min(pointerX, window.innerWidth - 320))}px`;
+    tooltip.style.top = `${Math.max(8, Math.min(pointerY, window.innerHeight - 120))}px`;
     tooltip.classList.add("is-visible");
     tooltip.setAttribute("aria-hidden", "false");
   }
@@ -618,14 +625,23 @@
   }
 
   function bindChartTooltip(target, title, lines, tooltipSelector = "#chart-tooltip") {
-    const show = (event) => showTooltip(event, title, lines, tooltipSelector);
+    const show = (event) => showTooltip(event, title, lines, tooltipSelector, target);
     target.setAttribute("data-chart-tooltip", "");
 
+    target.addEventListener("pointerenter", (event) => {
+      if (event.pointerType !== "touch" && !pinnedTooltipTarget) show(event);
+    });
     target.addEventListener("pointermove", (event) => {
       if (event.pointerType !== "touch" && !pinnedTooltipTarget) show(event);
     });
     target.addEventListener("pointerleave", (event) => {
       if (event.pointerType !== "touch" && pinnedTooltipTarget !== target) hideTooltip(tooltipSelector);
+    });
+    target.addEventListener("focus", (event) => {
+      if (!pinnedTooltipTarget) show(event);
+    });
+    target.addEventListener("blur", () => {
+      if (pinnedTooltipTarget !== target) hideTooltip(tooltipSelector);
     });
     target.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -667,19 +683,19 @@
         "stroke-dasharray": `${percent} ${100 - percent}`,
         "stroke-dashoffset": -cursor,
         "pathLength": 100,
-        transform: "rotate(-90 50 50)",
         class: "donut-segment",
         tabindex: 0,
         "aria-label": `${item.label}，${tooltipLines.join("，")}`,
       });
-      bindChartTooltip(segment, item.label, tooltipLines);
+      bindChartTooltip(segment, item.label, tooltipLines, "#global-chart-tooltip");
       donut.append(segment);
       cursor += percent;
     });
-    const totalElement = document.createElement("div");
-    totalElement.className = "donut-total";
-    totalElement.innerHTML = `<strong>${formatValue(total, 1)}</strong><span>${centerLabel}</span>`;
-    wrap.append(donut, totalElement);
+    donut.append(
+      svgElement("text", { x: 50, y: 48, "text-anchor": "middle", class: "donut-center-value" }, formatValue(total, 1)),
+      svgElement("text", { x: 50, y: 59, "text-anchor": "middle", class: "donut-center-label" }, centerLabel),
+    );
+    wrap.append(donut);
 
     const legend = document.createElement("div");
     legend.className = "legend";
@@ -689,7 +705,7 @@
       row.tabIndex = 0;
       row.innerHTML = `<i class="legend-swatch" style="background:${item.color}"></i><span>${item.label}</span><span class="legend-value">${formatValue(item.value, 1)}${unit}</span>`;
       const percent = (item.value / total) * 100;
-      bindChartTooltip(row, item.label, [`${formatValue(item.value, 1)}${unit}`, `占比 ${percent.toFixed(1)}%`]);
+      bindChartTooltip(row, item.label, [`${formatValue(item.value, 1)}${unit}`, `占比 ${percent.toFixed(1)}%`], "#global-chart-tooltip");
       legend.append(row);
     });
     layout.append(wrap, legend);
@@ -741,7 +757,7 @@
         tabindex: 0,
       });
       const tooltipLines = item.tooltip || [`${formatValue(item.value, options.valueDigits ?? 2)}${options.suffix || ""}`];
-      bindChartTooltip(rect, item.label, tooltipLines);
+      bindChartTooltip(rect, item.label, tooltipLines, "#global-chart-tooltip");
       rect.addEventListener("focus", () => rect.setAttribute("opacity", "0.78"));
       rect.addEventListener("blur", () => rect.setAttribute("opacity", "1"));
       svg.append(rect);
@@ -881,7 +897,7 @@
       const rankPoint = svgElement("circle", { cx: xPos, cy: rankYPos, r: 4.5, class: "rank-point", tabindex: 0 });
       const cumulativePoint = svgElement("circle", { cx: xPos, cy: cumulativeYPos, r: 4.5, class: "cumulative-point", tabindex: 0 });
       [semesterPoint, rankPoint, cumulativePoint].forEach((point) => {
-        bindChartTooltip(point, item.fullLabel, tooltipLines);
+        bindChartTooltip(point, item.fullLabel, tooltipLines, "#global-chart-tooltip");
       });
       svg.append(semesterPoint, rankPoint, cumulativePoint);
     });
