@@ -786,6 +786,7 @@
         return {
           label: `${year}${term === "第一学期" ? "上" : term === "第二学期" ? "下" : term}`,
           fullLabel: `${year} ${term}`,
+          semesterCount: semesterRows.length,
           gpa: weightedAverage(items, (row) => row.绩点),
           rank: weightedAverage(items, (row) => parseRank(row.教学班排名).rank),
           percentile: weightedAverage(items, (row) => parseRank(row.教学班排名).percentile),
@@ -793,7 +794,7 @@
           count: items.length,
         };
       })
-      .filter((item) => item.count);
+      .filter((item) => item.semesterCount);
   }
 
   function renderGpaTrend(containerSelector, semesterData, cumulativeData) {
