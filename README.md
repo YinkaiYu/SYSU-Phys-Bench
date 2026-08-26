@@ -5,7 +5,7 @@
 
   <h3>中山大学物理学院本科课程给分基准测试</h3>
 
-  <p><strong>把课程给分，放到同一把尺上。</strong></p>
+  <p><strong>把课程给分的系统偏差还给课程，如此留下的是我们自身水平的真实</strong></p>
 
   <p>
     <img alt="Course records" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.record_count&amp;label=%E8%AF%BE%E7%A8%8B%E8%AE%B0%E5%BD%95&amp;color=244e61&amp;style=flat-square" />

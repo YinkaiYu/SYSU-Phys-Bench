@@ -1,25 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title description">
   <title id="title">SYSU-Phys-Bench</title>
-  <desc id="description">把课程给分放到同一把尺上的基准测试项目视觉</desc>
+  <desc id="description">把课程给分的系统偏差还给课程，如此留下的是我们自身水平的真实</desc>
   <defs>
-    <linearGradient id="background" x1="58" y1="28" x2="1138" y2="444" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0c2028"/>
-      <stop offset=".57" stop-color="#163845"/>
+    <linearGradient id="background" x1="40" y1="16" x2="1160" y2="446" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#091b22"/>
+      <stop offset=".56" stop-color="#153744"/>
       <stop offset="1" stop-color="#244e61"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(310 223) rotate(18) scale(285 245)" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#5da0ba" stop-opacity=".22"/>
-      <stop offset="1" stop-color="#5da0ba" stop-opacity="0"/>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientTransform="translate(262 230) scale(292)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5fa7c0" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#5fa7c0" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="mark" x1="274" y1="112" x2="274" y2="336" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#f7fbfc"/>
-      <stop offset="1" stop-color="#b9d3dd"/>
+    <linearGradient id="axis" x1="260" y1="104" x2="260" y2="356" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#bed7e0"/>
     </linearGradient>
-    <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#061318" flood-opacity=".34"/>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#061318" flood-opacity=".38"/>
     </filter>
-    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-      <path d="M48 0H0V48" fill="none" stroke="#d9edf3" stroke-opacity=".055"/>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" fill="none" stroke="#d9edf3" stroke-opacity=".045"/>
     </pattern>
     <style>
       text { font-family: Inter, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
@@ -28,38 +28,30 @@
 
   <rect width="1200" height="460" rx="30" fill="url(#background)"/>
   <rect width="1200" height="460" rx="30" fill="url(#grid)"/>
-  <rect width="1200" height="460" rx="30" fill="url(#glow)"/>
+  <rect width="1200" height="460" rx="30" fill="url(#halo)"/>
 
-  <g opacity=".38" fill="none" stroke="#8ec0d2">
-    <path d="M53 376C223 297 326 351 465 267C578 199 623 103 764 72" stroke-opacity=".18"/>
-    <path d="M807 395C929 345 1036 324 1165 218" stroke-opacity=".14"/>
-    <circle cx="87" cy="361" r="4" fill="#62a9c4" stroke="none"/>
-    <circle cx="445" cy="279" r="4" fill="#d58ba4" stroke="none"/>
-    <circle cx="759" cy="75" r="4" fill="#98a86a" stroke="none"/>
-    <circle cx="1031" cy="328" r="4" fill="#dd784e" stroke="none"/>
-    <circle cx="1158" cy="223" r="4" fill="#d9aa58" stroke="none"/>
+  <g opacity=".24" fill="none">
+    <circle cx="209" cy="230" r="174" stroke="#66abc4"/>
+    <circle cx="311" cy="230" r="174" stroke="#d8a64f"/>
+    <path d="M58 230H450" stroke="#dcebf0" stroke-opacity=".34"/>
+    <path d="M260 42V418" stroke="#dcebf0" stroke-opacity=".24"/>
   </g>
 
-  <g filter="url(#soft-shadow)">
-    <rect x="126" y="68" width="296" height="296" rx="68" fill="#0e252e" fill-opacity=".72" stroke="#c9e0e8" stroke-opacity=".15"/>
-    <path d="M170 122H378M170 216H378M170 310H378M180 112V320M274 112V320M368 112V320" fill="none" stroke="#d9edf3" stroke-opacity=".07"/>
-    <path d="M206 137C218 176 241 199 274 218C307 199 330 176 342 137" fill="none" stroke="url(#mark)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M274 218V305" fill="none" stroke="url(#mark)" stroke-width="17" stroke-linecap="round"/>
-    <path d="M222 313H326" fill="none" stroke="#d9aa58" stroke-width="10" stroke-linecap="round"/>
-    <circle cx="206" cy="137" r="17" fill="#62a9c4" stroke="#f7fbfc" stroke-width="5"/>
-    <circle cx="342" cy="137" r="17" fill="#dd784e" stroke="#f7fbfc" stroke-width="5"/>
-    <circle cx="274" cy="218" r="17" fill="#d9aa58" stroke="#fff7e8" stroke-width="5"/>
+  <g filter="url(#shadow)">
+    <circle cx="260" cy="230" r="132" fill="#0c252e" fill-opacity=".82" stroke="#d8e8ee" stroke-opacity=".15"/>
+    <path d="M260 154C195 154 158 184 158 230S195 306 260 306" fill="none" stroke="#66abc4" stroke-width="24" stroke-linecap="round"/>
+    <path d="M260 154C325 154 362 184 362 230S325 306 260 306" fill="none" stroke="#d8a64f" stroke-width="24" stroke-linecap="round"/>
+    <path d="M260 104V356" fill="none" stroke="url(#axis)" stroke-width="22" stroke-linecap="round"/>
+    <circle cx="260" cy="230" r="13" fill="#ffffff"/>
   </g>
 
-  <g transform="translate(506 0)">
-    <text x="0" y="188" fill="#f7fbfc" font-size="58" font-weight="760" letter-spacing="-.02em">SYSU-Phys-Bench</text>
-    <path d="M2 218H574" stroke="#9fc2cf" stroke-opacity=".32"/>
-    <text x="0" y="280" fill="#dce9ee" font-size="32" font-weight="560">把课程给分，放到同一把尺上。</text>
-    <g transform="translate(0 326)">
-      <path d="M0 0H92" stroke="#d9aa58" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="0" cy="0" r="6" fill="#d9aa58"/>
-      <circle cx="46" cy="0" r="6" fill="#d9aa58"/>
-      <circle cx="92" cy="0" r="6" fill="#d9aa58"/>
-    </g>
+  <g transform="translate(476 0)">
+    <text x="0" y="154" fill="#f7fbfc" font-size="58" font-weight="760" letter-spacing="-.025em">SYSU-Phys-Bench</text>
+    <path d="M2 187H626" stroke="#9fc2cf" stroke-opacity=".34"/>
+    <text x="0" y="244" fill="#e2edf1" font-size="27" font-weight="520">
+      <tspan x="0" dy="0">把课程给分的系统偏差还给课程，</tspan>
+      <tspan x="0" dy="48">如此留下的是我们自身水平的真实</tspan>
+    </text>
+    <path d="M0 336H106" stroke="#d8a64f" stroke-width="5" stroke-linecap="round"/>
   </g>
 </svg>
