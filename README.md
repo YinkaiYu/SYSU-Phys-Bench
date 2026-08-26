@@ -129,10 +129,10 @@ data/submissions/*.csv
 3. 检查课程记录并运行校验与构建；
 4. 提交 Pull Request。
 
-复制一个学期后即可运行：
+将各学期复制内容分别保存到 `local-import/*.txt` 后，一次性转换：
 
 ```powershell
-python scripts/convert_sysu_clipboard.py --clipboard --contributor-id phys-2023-a7 --cohort 2023 --program 物理学
+python scripts/convert_sysu_grades.py local-import --contributor-id phys-2023-a7 --cohort 2023 --program 物理学
 ```
 
 ```powershell
@@ -189,7 +189,7 @@ SYSU-Phys-Bench/
 ├── scripts/
 │   ├── extract_data.py                # 初始 Excel 数据提取
 │   ├── validate_submissions.py        # CSV schema 与数值校验
-│   ├── convert_sysu_clipboard.py      # 教务系统复制文本转换
+│   ├── convert_sysu_grades.py         # 教务系统成绩文本转换
 │   └── build_dataset.py               # 生成浏览器数据
 ├── tests/                              # 转换器自动测试
 ├── index.html                         # Benchmark 主页面

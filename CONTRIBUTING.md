@@ -23,6 +23,19 @@
 
 教师字段是可选字段。原始 Excel、PDF、截图或教务系统导出文件不应加入仓库。
 
+## 准备仓库
+
+先 Fork 并克隆仓库，创建自己的投稿分支和本地导入目录。完成这些命令后，再去教务系统复制成绩，避免复制命令覆盖成绩文本。
+
+```powershell
+git clone https://github.com/<你的 GitHub 用户名>/SYSU-Phys-Bench.git
+Set-Location SYSU-Phys-Bench
+git checkout -b data/<你的 contributor_id>
+New-Item -ItemType Directory -Force local-import
+```
+
+`local-import/` 已被 Git 忽略，只用于在本机暂存从教务系统复制的文本。
+
 ## 从教务系统获取成绩
 
 ### 1. 查询一个学期
@@ -34,19 +47,28 @@
 
 ![中山大学教务系统成绩查询页面](assets/docs/jwxt-grade-query.png)
 
-### 2. 复制成绩表格
+### 2. 复制并保存成绩表格
 
-从表格第一条课程开始，框选到最后一条课程的“教学班排名”，然后复制。复制内容会包含课程、教师、学年、学期、学分、最终成绩、绩点和教学班排名。教师为空的课程也可以正常转换。
+逐学期查询成绩。每次从表格第一条课程开始，框选到最后一条课程的“教学班排名”，复制后立即粘贴到一个纯文本文件中，并以 UTF-8 编码保存，例如：
+
+```text
+local-import/
+├── 2020-fall.txt
+├── 2021-spring.txt
+└── 2021-fall.txt
+```
+
+文件名只用于区分学期，不参与数据计算，可以按自己的习惯命名。文本可以保留表头；复制内容应包含课程、教师、学年、学期、学分、最终成绩、绩点和教学班排名。教师为空的课程也可以正常转换。
 
 不需要手工整理制表符或换行。转换脚本会识别教务系统复制文本中的断行和空白字段。
 
-### 3. 一键转换当前剪贴板
+### 3. 批量转换文本文件
 
-先按下方数据投稿流程 Fork 并克隆仓库，再确定一个匿名 `contributor_id`，例如 `phys-2023-a7`。在仓库目录运行：
+确定一个匿名 `contributor_id`，例如 `phys-2023-a7`。全部学期保存完成后，在仓库目录运行：
 
 ```powershell
-python scripts/convert_sysu_clipboard.py `
-  --clipboard `
+python scripts/convert_sysu_grades.py `
+  local-import `
   --contributor-id phys-2023-a7 `
   --cohort 2023 `
   --program 物理学
@@ -54,41 +76,18 @@ python scripts/convert_sysu_clipboard.py `
 
 脚本会自动：
 
-- 读取当前剪贴板；
+- 查找 `local-import/` 中的全部 `.txt` 文件；
 - 识别教务系统表格行和缺失教师；
 - 将 `22/35` 拆分为教学班名次与人数；
 - 根据入学年份、学年和学期生成“大一/大二”和 `2020-fall` 一类字段；
 - 生成稳定且匿名的 `record_id`；
 - 创建或合并到 `data/submissions/phys-2023-a7.csv`。
 
-查询并复制下一个学期后，重复运行同一条命令。已经导入过的相同课程会自动跳过，因此可以放心重跑。
+转换完成后，打开生成的 CSV，抽查课程、最终成绩、绩点和教学班排名。以后补充或修正文本文件时，可以再次运行同一条命令；已经导入过的相同课程会自动跳过。不要提交 `local-import/` 中的原始复制文本。
 
-### 4. 使用文本文件批量转换
+## 检查并提交数据
 
-如果系统无法读取剪贴板，可以将每学期复制的内容分别保存为 UTF-8 文本文件。建议放在仓库的 `local-import/` 目录；该目录已被 Git 忽略，不会进入 Pull Request。
-
-```powershell
-python scripts/convert_sysu_clipboard.py `
-  local-import/2020-fall.txt `
-  local-import/2021-spring.txt `
-  --contributor-id phys-2023-a7 `
-  --cohort 2023 `
-  --program 物理学
-```
-
-转换完成后，打开生成的 CSV，抽查课程、最终成绩、绩点和教学班排名。不要提交 `local-import/` 中的原始复制文本。
-
-## 数据投稿流程
-
-### 1. Fork 并创建分支
-
-```bash
-git clone https://github.com/<你的 GitHub 用户名>/SYSU-Phys-Bench.git
-cd SYSU-Phys-Bench
-git checkout -b data/<你的 contributor_id>
-```
-
-### 2. 生成或创建投稿文件
+### 1. 生成或创建投稿文件
 
 推荐使用上面的教务系统转换脚本。它会直接生成符合字段顺序的投稿 CSV。
 
@@ -102,7 +101,7 @@ Copy-Item data/submissions/template.csv data/submissions/<contributor_id>.csv
 
 每个 `record_id` 必须全局唯一，并以 `<contributor_id>-` 开头，例如：`phys-2023-a7-001`。
 
-### 3. 检查课程记录
+### 2. 检查课程记录
 
 CSV 必须使用 UTF-8 编码，表头顺序不得更改。字段定义如下：
 
@@ -126,7 +125,7 @@ CSV 必须使用 UTF-8 编码，表头顺序不得更改。字段定义如下：
 
 每门课程应占一行。不要合并课程，也不要预先计算 Yu Index。无论使用自动转换还是手工填写，都应在提交前抽查生成结果。
 
-### 4. 本地校验并生成网页数据
+### 3. 本地校验并生成网页数据
 
 校验全部投稿：
 
@@ -154,7 +153,7 @@ git commit -m "data: add <contributor_id> course records"
 git push -u origin data/<contributor_id>
 ```
 
-### 5. 创建 Pull Request
+### 4. 创建 Pull Request
 
 Pull Request 模板会要求确认数据权属、匿名化、校验结果和公开授权。维护者会检查：
 

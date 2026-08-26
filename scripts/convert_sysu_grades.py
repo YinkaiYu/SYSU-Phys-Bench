@@ -4,7 +4,6 @@ import argparse
 import csv
 import hashlib
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -169,43 +168,37 @@ def parse_text(text: str, contributor_id: str, cohort: int, program: str) -> lis
     return records
 
 
-def read_clipboard() -> str:
-    try:
-        import tkinter
-
-        root = tkinter.Tk()
-        root.withdraw()
-        try:
-            return str(root.clipboard_get())
-        finally:
-            root.destroy()
-    except Exception as tkinter_error:
-        if sys.platform == "win32":
-            completed = subprocess.run(
-                [
-                    "powershell.exe",
-                    "-NoProfile",
-                    "-Command",
-                    "[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); Get-Clipboard -Raw",
-                ],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                check=False,
-            )
-            if completed.returncode == 0 and completed.stdout.strip():
-                return completed.stdout
-        raise ConversionError("无法读取剪贴板；请将复制内容保存为 UTF-8 文本文件后重试") from tkinter_error
-
-
 def read_source(path: Path) -> str:
     for encoding in ("utf-8-sig", "gb18030"):
         try:
             return path.read_text(encoding=encoding)
         except UnicodeDecodeError:
             continue
+        except OSError as error:
+            raise ConversionError(f"无法读取文本文件：{path}") from error
     raise ConversionError(f"无法读取文本文件编码：{path}")
+
+
+def collect_source_files(sources: list[Path]) -> list[Path]:
+    files: list[Path] = []
+    seen: set[Path] = set()
+    for source in sources:
+        resolved = source.resolve()
+        if not resolved.exists():
+            raise ConversionError(f"输入路径不存在：{source}")
+        if resolved.is_dir():
+            candidates = sorted(path for path in resolved.rglob("*.txt") if path.is_file())
+            if not candidates:
+                raise ConversionError(f"目录中没有找到 .txt 文件：{source}")
+        elif resolved.is_file():
+            candidates = [resolved]
+        else:
+            raise ConversionError(f"输入路径不是普通文件或目录：{source}")
+        for path in candidates:
+            if path not in seen:
+                seen.add(path)
+                files.append(path)
+    return files
 
 
 def stringify_record(record: dict[str, object]) -> dict[str, str]:
@@ -247,9 +240,8 @@ def write_csv(output: Path, records: list[dict[str, str]]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="将中山大学教务系统复制的成绩表转换为 SYSU-Phys-Bench CSV")
-    parser.add_argument("files", nargs="*", type=Path, help="从教务系统复制后保存的 UTF-8 文本文件，可一次提供多个学期")
-    parser.add_argument("--clipboard", action="store_true", help="直接读取当前剪贴板中的一个学期成绩")
+    parser = argparse.ArgumentParser(description="将保存为文本文件的中山大学教务系统成绩表转换为 SYSU-Phys-Bench CSV")
+    parser.add_argument("sources", nargs="+", type=Path, help="一个或多个成绩文本文件，或包含 .txt 文件的目录")
     parser.add_argument("--contributor-id", required=True, help="匿名贡献者 ID，例如 phys-2023-a7")
     parser.add_argument("--cohort", required=True, type=int, help="入学年份，例如 2023")
     parser.add_argument("--program", required=True, help="专业或培养方向，例如 物理学")
@@ -257,18 +249,13 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="只解析和校验，不写入文件")
     arguments = parser.parse_args()
 
-    if not arguments.clipboard and not arguments.files:
-        parser.error("请使用 --clipboard，或提供至少一个文本文件")
-
     output = (arguments.output or SUBMISSIONS_DIR / f"{arguments.contributor_id}.csv").resolve()
     if output.stem != arguments.contributor_id:
         parser.error("输出文件名必须与 contributor_id 完全一致")
 
     try:
-        source_texts = []
-        if arguments.clipboard:
-            source_texts.append(read_clipboard())
-        source_texts.extend(read_source(path.resolve()) for path in arguments.files)
+        source_files = collect_source_files(arguments.sources)
+        source_texts = [read_source(path) for path in source_files]
         incoming = [
             record
             for text in source_texts

@@ -6,7 +6,7 @@ on:
       - "data/submissions/**"
       - "scripts/validate_submissions.py"
       - "scripts/build_dataset.py"
-      - "scripts/convert_sysu_clipboard.py"
+      - "scripts/convert_sysu_grades.py"
       - "tests/**"
       - "community-data.js"
       - "assets/readme/dataset-stats.json"
@@ -16,7 +16,7 @@ on:
       - "data/submissions/**"
       - "scripts/validate_submissions.py"
       - "scripts/build_dataset.py"
-      - "scripts/convert_sysu_clipboard.py"
+      - "scripts/convert_sysu_grades.py"
       - "tests/**"
       - "community-data.js"
       - "assets/readme/dataset-stats.json"
@@ -36,5 +36,5 @@ jobs:
         run: python scripts/validate_submissions.py
       - name: Verify generated browser data
         run: python scripts/build_dataset.py --check
-      - name: Test SYSU clipboard converter
+      - name: Test SYSU grade-file converter
         run: python -m unittest discover -s tests

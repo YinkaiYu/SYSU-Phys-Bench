@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from convert_sysu_clipboard import merge_records, parse_text  # noqa: E402
+from convert_sysu_grades import collect_source_files, merge_records, parse_text  # noqa: E402
 
 
 COPIED_TABLE = """序号\t类别\t课程\t教师\t学年\t学期\t学分\t原始成绩\t最终成绩\t特殊原因\t绩点\t考试性质\t是否通过\t教学班排名
@@ -28,7 +28,7 @@ COPIED_TABLE = """序号\t类别\t课程\t教师\t学年\t学期\t学分\t原始
 """
 
 
-class ConvertSysuClipboardTests(unittest.TestCase):
+class ConvertSysuGradesTests(unittest.TestCase):
     def test_parses_copied_table_and_missing_teacher(self) -> None:
         records = parse_text(COPIED_TABLE, "phys-2020-a7", 2020, "物理学")
 
@@ -57,8 +57,8 @@ class ConvertSysuClipboardTests(unittest.TestCase):
             source.write_text(COPIED_TABLE, encoding="utf-8")
             command = [
                 sys.executable,
-                str(ROOT / "scripts" / "convert_sysu_clipboard.py"),
-                str(source),
+                str(ROOT / "scripts" / "convert_sysu_grades.py"),
+                str(temporary),
                 "--contributor-id",
                 "phys-2020-a7",
                 "--cohort",
@@ -82,6 +82,18 @@ class ConvertSysuClipboardTests(unittest.TestCase):
             self.assertEqual(len(rows), 3)
             military = next(row for row in rows if row["course_name"] == "军事课")
             self.assertEqual(military["teacher"], "")
+
+    def test_collects_text_files_from_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            first = temporary / "2020-fall.txt"
+            second = temporary / "2021-spring.txt"
+            ignored = temporary / "notes.md"
+            first.write_text(COPIED_TABLE, encoding="utf-8")
+            second.write_text(COPIED_TABLE, encoding="utf-8")
+            ignored.write_text("not a grade file", encoding="utf-8")
+
+            self.assertEqual(collect_source_files([temporary]), [first, second])
 
 
 if __name__ == "__main__":

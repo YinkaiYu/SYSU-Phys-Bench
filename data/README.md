@@ -7,7 +7,9 @@
 ```text
 教务系统复制文本
         │
-        └── scripts/convert_sysu_clipboard.py
+        └── 保存为 local-import/*.txt
+                         │
+                         └── scripts/convert_sysu_grades.py
                          │
                          ▼
 data/submissions/*.csv
