@@ -6,22 +6,20 @@ on:
       - "data/submissions/**"
       - "scripts/validate_submissions.py"
       - "scripts/build_dataset.py"
-      - "scripts/build_readme_visual.py"
       - "scripts/convert_sysu_clipboard.py"
       - "tests/**"
       - "community-data.js"
-      - "assets/readme/hero.svg"
+      - "assets/readme/dataset-stats.json"
   push:
     branches: [main]
     paths:
       - "data/submissions/**"
       - "scripts/validate_submissions.py"
       - "scripts/build_dataset.py"
-      - "scripts/build_readme_visual.py"
       - "scripts/convert_sysu_clipboard.py"
       - "tests/**"
       - "community-data.js"
-      - "assets/readme/hero.svg"
+      - "assets/readme/dataset-stats.json"
 
 permissions:
   contents: read
@@ -38,7 +36,5 @@ jobs:
         run: python scripts/validate_submissions.py
       - name: Verify generated browser data
         run: python scripts/build_dataset.py --check
-      - name: Verify README data visual
-        run: python scripts/build_readme_visual.py --check
       - name: Test SYSU clipboard converter
         run: python -m unittest discover -s tests

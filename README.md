@@ -1,22 +1,26 @@
 <div align="center">
+  <img src="assets/brand/logo-mark.svg" width="96" alt="SYSU-Phys-Bench logo" />
+
   <h1>SYSU-Phys-Bench</h1>
 
   <h3>中山大学物理学院本科课程给分基准测试</h3>
 
-  <p><strong>一个开放、可复现、可持续扩展的本科课程给分 benchmark</strong></p>
+  <p><strong>把课程给分，放到同一把尺上。</strong></p>
 
   <p>
-    <a href="https://github.com/YinkaiYu/SYSU-Phys-Bench/actions/workflows/validate-data.yml"><img alt="Data validation" src="https://img.shields.io/github/actions/workflow/status/YinkaiYu/SYSU-Phys-Bench/validate-data.yml?branch=main&amp;style=flat-square&amp;label=data%20validation&amp;logo=githubactions&amp;logoColor=white&amp;color=244e61" /></a>
-    <a href="https://www.yykspace.com/show/sysu-phys-bench/"><img alt="Open live benchmark" src="https://img.shields.io/badge/Open-Live_Benchmark-244e61?style=flat-square" /></a>
-    <a href="CONTRIBUTING.md"><img alt="Contribute data" src="https://img.shields.io/badge/Contribute-Data_via_PR-748061?style=flat-square" /></a>
+    <img alt="Course records" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.record_count&amp;label=%E8%AF%BE%E7%A8%8B%E8%AE%B0%E5%BD%95&amp;color=244e61&amp;style=flat-square" />
+    <img alt="Covered courses" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.course_count&amp;label=%E8%A6%86%E7%9B%96%E8%AF%BE%E7%A8%8B&amp;color=c87542&amp;style=flat-square" />
+    <img alt="Contributors" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FYinkaiYu%2FSYSU-Phys-Bench%2Fmain%2Fassets%2Freadme%2Fdataset-stats.json&amp;query=%24.contributor_count&amp;label=%E8%B4%A1%E7%8C%AE%E8%80%85&amp;color=748061&amp;style=flat-square" />
   </p>
 
   <p>
     <a href="https://www.yykspace.com/show/sysu-phys-bench/">在线测评</a>
+    · <a href="#results">当前结果</a>
     · <a href="#benchmark">Benchmark</a>
     · <a href="#yu-index">Yu Index</a>
     · <a href="#open-dataset">开放数据集</a>
     · <a href="CONTRIBUTING.md">贡献指南</a>
+    · <a href="https://github.com/YinkaiYu/SYSU-Phys-Bench/actions/workflows/validate-data.yml">数据校验</a>
     · <a href="#citation">引用</a>
   </p>
 </div>
@@ -35,13 +39,6 @@
 
 > [!IMPORTANT]
 > **我们正在扩充开放数据集。** 如果你愿意贡献自己的课程成绩、绩点与教学班排名，请阅读 [贡献指南](CONTRIBUTING.md)，通过标准 CSV 和 Pull Request 加入 SYSU-Phys-Bench。
-
-| 当前数据集 | 数量 |
-|---|---:|
-| 贡献者 | 1 |
-| 课程记录 | 63 |
-| 覆盖课程 | 58 |
-| 时间范围 | 2020—2024 |
 
 ## Benchmark
 
@@ -64,6 +61,22 @@ SYSU-Phys-Bench 将每条课程记录视为一个实验数据点：
 - **数据集统计**：贡献者、记录数、课程覆盖、绩点分布、学分构成和类别统计；
 - **全屏与 PNG 导出**：生成适合分享和进一步分析的高分辨率图表；
 - **Yu Index 计算器**：使用自己的 $G$、$r$、$n$ 计算单条实验数据点。
+
+## Results
+
+以下为当前公开数据集的两张核心结果图。点击图片可查看原始分辨率；交互筛选、样本提示、全屏查看与 PNG 导出见 [在线 Benchmark](https://www.yykspace.com/show/sysu-phys-bench/)。
+
+### 课程绩点与排名分布
+
+<a href="assets/readme/figures/course-gpa-rank.png">
+  <img src="assets/readme/figures/course-gpa-rank.png" width="100%" alt="SYSU-Phys-Bench 课程绩点与排名分布图" />
+</a>
+
+### Yu Index 与排名分布
+
+<a href="assets/readme/figures/yu-index-rank.png">
+  <img src="assets/readme/figures/yu-index-rank.png" width="100%" alt="SYSU-Phys-Bench Yu Index 与排名分布图" />
+</a>
 
 ## Yu Index
 
@@ -125,9 +138,7 @@ python scripts/convert_sysu_clipboard.py --clipboard --contributor-id phys-2023-
 ```powershell
 python scripts/validate_submissions.py
 python scripts/build_dataset.py
-python scripts/build_readme_visual.py
 python scripts/build_dataset.py --check
-python scripts/build_readme_visual.py --check
 ```
 
 GitHub Actions 会对每个数据 PR 自动执行同样的检查。投稿必须是贡献者本人所有或已获明确授权的数据，并且不得包含姓名、学号、联系方式或原始成绩单文件。
@@ -151,7 +162,6 @@ python -m http.server 8000
 ```bash
 python scripts/validate_submissions.py
 python scripts/build_dataset.py --check
-python scripts/build_readme_visual.py --check
 ```
 
 从维护者的原始 Excel 工作簿重新生成首批数据需要 `openpyxl`：
@@ -160,7 +170,6 @@ python scripts/build_readme_visual.py --check
 python -m pip install openpyxl
 python scripts/extract_data.py
 python scripts/build_dataset.py
-python scripts/build_readme_visual.py
 ```
 
 ## Repository Structure
@@ -171,8 +180,9 @@ SYSU-Phys-Bench/
 │   ├── workflows/validate-data.yml    # 数据 PR 自动校验
 │   └── PULL_REQUEST_TEMPLATE.md       # 投稿检查清单
 ├── assets/
+│   ├── brand/logo-mark.svg            # 项目标志
 │   ├── docs/jwxt-grade-query.png      # 教务系统操作示意
-│   └── readme/hero.svg                # README 数据主视觉
+│   └── readme/                        # 品牌主视觉、动态统计与当前结果图
 ├── data/
 │   ├── README.md                      # 数据集与聚合说明
 │   └── submissions/                   # 标准化社区投稿
@@ -180,8 +190,7 @@ SYSU-Phys-Bench/
 │   ├── extract_data.py                # 初始 Excel 数据提取
 │   ├── validate_submissions.py        # CSV schema 与数值校验
 │   ├── convert_sysu_clipboard.py      # 教务系统复制文本转换
-│   ├── build_dataset.py               # 生成浏览器数据
-│   └── build_readme_visual.py          # 生成 README 数据主视觉
+│   └── build_dataset.py               # 生成浏览器数据
 ├── tests/                              # 转换器自动测试
 ├── index.html                         # Benchmark 主页面
 ├── yu-index.html                      # Yu Index 技术报告

@@ -12,11 +12,10 @@
                          ▼
 data/submissions/*.csv
         ├── scripts/validate_submissions.py  校验格式与取值
-        ├── scripts/build_dataset.py         生成 community-data.js → SYSU-Phys-Bench 网页
-        └── scripts/build_readme_visual.py   生成 assets/readme/hero.svg → README 数据主视觉
+        └── scripts/build_dataset.py         生成网页数据与 README 徽章统计
 ```
 
-`community-data.js` 与 `assets/readme/hero.svg` 都是确定性生成文件：相同 CSV 输入会产生完全相同的输出。Pull Request 必须同时提交新增或修改的 CSV、重新生成的网页数据与 README 数据主视觉。
+`community-data.js` 与 `assets/readme/dataset-stats.json` 是确定性生成文件：相同 CSV 输入会产生完全相同的输出。Pull Request 必须同时提交新增或修改的 CSV 与重新生成的网页数据、徽章统计。README 中的结果图由维护者在发布数据集快照时更新。
 
 ## 记录粒度
 
